@@ -3,109 +3,168 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Halo — your bio link</title>
-<meta name="description" content="Build a customizable bio-link profile page. No account, no server: your page lives in its link.">
-<link rel="stylesheet" href="style.css">
+<title>halo</title>
+<meta name="description" content="Build a customizable bio-link page with effects, music and live Discord status. No account and no server: your page lives in its link.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='11' fill='none' stroke='%237c9cff' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/editor.css">
+<link rel="stylesheet" href="css/profile.css">
+<script type="module" src="js/main.js"></script>
 </head>
 <body>
-  <!-- Editor mode (shown when the URL has no #p= profile) -->
+  <noscript><p class="noscript">halo needs JavaScript to build and show pages.</p></noscript>
+
+  <!-- Editor (shown when the URL has no #p= profile) -->
   <div id="editor" class="editor" hidden>
     <aside class="panel">
       <header class="panel-head">
         <h1 class="brand">halo<span>.</span></h1>
-        <p class="muted">Build your page. Everything is stored in the link you share.</p>
+        <p class="muted">Build your page. Everything lives in the link you share.</p>
       </header>
 
       <form id="form" autocomplete="off">
-        <fieldset>
-          <legend>Profile</legend>
+        <section>
+          <h2 class="sec-title">Themes</h2>
+          <div id="presets" class="presets"></div>
+        </section>
+
+        <details open>
+          <summary>Profile</summary>
           <label>Display name <input name="name" maxlength="40"></label>
           <label>Avatar image URL <input name="avatar" type="url" placeholder="https://…"></label>
-          <label>Bio <textarea name="bio" rows="3" maxlength="300"></textarea></label>
+          <label>Bio <textarea name="bio" rows="3" maxlength="400"></textarea></label>
+          <p class="hint">One phrase per line. The “Rotate lines” bio effect types them one after another.</p>
           <label>Location <input name="location" maxlength="40"></label>
-        </fieldset>
+          <div class="field-label">Badges <span class="hint-inline">up to 6</span></div>
+          <div id="badges" class="badge-picker"></div>
+        </details>
 
-        <fieldset>
-          <legend>Links</legend>
+        <details open>
+          <summary>Links</summary>
           <div id="links"></div>
-          <button type="button" id="add-link" class="ghost">+ Add link</button>
-        </fieldset>
+          <button type="button" id="add-link" class="add">+ Add link</button>
+          <p class="hint">“Copy” items copy text, like a username, instead of opening a page.</p>
+          <div class="row">
+            <label>Layout <select name="linkStyle"></select></label>
+            <label>Hover <select name="linkHover"></select></label>
+          </div>
+          <label class="check"><input type="checkbox" name="favicons"> Show each site’s icon</label>
+        </details>
 
-        <fieldset>
-          <legend>Background</legend>
-          <label>Type
-            <select name="bgType">
-              <option value="gradient">Gradient</option>
-              <option value="image">Image</option>
-              <option value="video">Video</option>
-            </select>
-          </label>
+        <details>
+          <summary>Discord presence</summary>
+          <label>Discord user ID <input name="discordId" inputmode="numeric" placeholder="e.g. 123456789012345678"></label>
+          <p class="hint">Shows your live status and activity through the free <a href="https://github.com/Phineas/lanyard" target="_blank" rel="noopener">Lanyard</a> API. Join the Lanyard Discord server first. To find your ID, turn on Developer Mode in Discord, then right-click your name and pick Copy User ID.</p>
+          <label class="check"><input type="checkbox" name="discordAvatar"> Use my Discord avatar</label>
+          <label class="check"><input type="checkbox" name="discordActivity"> Show what I’m playing or listening to</label>
+        </details>
+
+        <details>
+          <summary>Background</summary>
+          <label>Type <select name="bgType"></select></label>
           <div class="row">
             <label>Color A <input name="bgA" type="color"></label>
             <label>Color B <input name="bgB" type="color"></label>
           </div>
-          <label>Image / video URL <input name="bgUrl" type="url" placeholder="https://…"></label>
-          <label>Dim <input name="dim" type="range" min="0" max="90"></label>
-          <label>Blur <input name="blur" type="range" min="0" max="20"></label>
-        </fieldset>
+          <label class="check"><input type="checkbox" name="bgAnimate"> Animate the gradient</label>
+          <label>Image or video URL <input name="bgUrl" type="url" placeholder="https://…"></label>
+          <label>Dim <span class="val"></span><input name="dim" type="range" min="0" max="90"></label>
+          <label>Blur <span class="val"></span><input name="blur" type="range" min="0" max="20"></label>
+          <label class="check"><input type="checkbox" name="parallax"> Parallax when the mouse moves</label>
+          <div class="field-label">Overlays</div>
+          <div class="checks">
+            <label class="check"><input type="checkbox" name="vignette"> Vignette</label>
+            <label class="check"><input type="checkbox" name="grain"> Film grain</label>
+            <label class="check"><input type="checkbox" name="scanlines"> Scanlines</label>
+          </div>
+        </details>
 
-        <fieldset>
-          <legend>Style</legend>
+        <details>
+          <summary>Card &amp; avatar</summary>
           <div class="row">
             <label>Accent <input name="accent" type="color"></label>
-            <label>Card
-              <select name="card">
-                <option value="glass">Glass</option>
-                <option value="solid">Solid</option>
-                <option value="none">None</option>
-              </select>
-            </label>
+            <label>Card <select name="card"></select></label>
           </div>
-          <label>Font
-            <select name="font">
-              <option value="sans">Sans</option>
-              <option value="mono">Mono</option>
-              <option value="serif">Serif</option>
-            </select>
-          </label>
-        </fieldset>
+          <div class="row">
+            <label>Font <select name="font"></select></label>
+            <label>Entrance <select name="cardAnim"></select></label>
+          </div>
+          <div class="row">
+            <label>Avatar shape <select name="avatarShape"></select></label>
+            <label>Avatar ring <select name="avatarRing"></select></label>
+          </div>
+          <label class="check"><input type="checkbox" name="tilt"> 3D tilt when the mouse moves</label>
+        </details>
 
-        <fieldset>
-          <legend>Effects</legend>
-          <label class="check"><input type="checkbox" name="fxTypewriter"> Typewriter bio</label>
-          <label class="check"><input type="checkbox" name="fxGlow"> Glowing name</label>
-          <label class="check"><input type="checkbox" name="fxTilt"> Tilt card on hover</label>
-          <label>Particles
-            <select name="fxParticles">
-              <option value="none">None</option>
-              <option value="dust">Dust</option>
-              <option value="snow">Snow</option>
-              <option value="stars">Stars</option>
-            </select>
-          </label>
-          <label>Background music URL (mp3/ogg) <input name="music" type="url" placeholder="https://…"></label>
-          <label class="check"><input type="checkbox" name="splash"> "Click to enter" screen</label>
-          <p class="hint">Browsers only play music after a click, so music turns on the enter screen automatically.</p>
-        </fieldset>
+        <details>
+          <summary>Text effects</summary>
+          <div class="row">
+            <label>Name <select name="nameFx"></select></label>
+            <label>Bio <select name="bioFx"></select></label>
+          </div>
+          <label>Browser tab title <input name="tabTitle" maxlength="60" placeholder="Defaults to your name"></label>
+          <label>Tab title effect <select name="tabFx"></select></label>
+        </details>
+
+        <details>
+          <summary>Particles &amp; cursor</summary>
+          <label>Particles <select name="particles"></select></label>
+          <label>Amount <span class="val"></span><input name="density" type="range" min="0.25" max="2" step="0.25"></label>
+          <label class="check"><input type="checkbox" name="particleMouse"> Particles react to the mouse</label>
+          <div class="row">
+            <label>Cursor <select name="cursorFx"></select></label>
+            <label>Click <select name="clickFx"></select></label>
+          </div>
+        </details>
+
+        <details>
+          <summary>Music</summary>
+          <label>Audio URL (mp3, ogg…) <input name="music" type="url" placeholder="https://…"></label>
+          <label>Track title <input name="musicTitle" maxlength="60" placeholder="Shown in the player"></label>
+          <label>Volume <span class="val"></span><input name="volume" type="range" min="0" max="100"></label>
+          <label class="check"><input type="checkbox" name="visualizer"> Visualizer around the avatar</label>
+          <p class="hint">The visualizer only works if the audio host allows cross-origin access (CORS). If it doesn’t, the music still plays.</p>
+        </details>
+
+        <details>
+          <summary>Enter screen &amp; page</summary>
+          <label class="check"><input type="checkbox" name="splash"> “Click to enter” screen</label>
+          <label>Enter screen text <input name="splashText" maxlength="40" placeholder="click to enter"></label>
+          <p class="hint">Music turns this on automatically, because browsers only play sound after a click.</p>
+          <label class="check"><input type="checkbox" name="footer"> Show the “make your own” link</label>
+          <div class="field-label">Edit a page you already shared</div>
+          <div class="inline">
+            <input id="load-url" type="url" placeholder="Paste its share link" aria-label="Share link to edit">
+            <button type="button" id="load-btn">Load</button>
+          </div>
+        </details>
       </form>
 
       <footer class="panel-foot">
         <button type="button" id="share" class="primary">Copy share link</button>
-        <button type="button" id="open" class="ghost">Open page</button>
-        <button type="button" id="reset" class="ghost danger">Reset</button>
+        <button type="button" id="open">Open page</button>
+        <button type="button" id="export" title="Download your page as a JSON file">Export</button>
+        <button type="button" id="import" title="Load a page from a JSON file">Import</button>
+        <button type="button" id="reset" class="danger">Reset</button>
+        <input type="file" id="import-file" accept="application/json,.json" hidden>
         <p id="status" class="muted" role="status"></p>
       </footer>
     </aside>
 
     <main class="preview-wrap">
-      <div class="preview-label">Live preview</div>
-      <div id="preview" class="stage preview"></div>
+      <div class="preview-bar">
+        <span class="preview-label">Live preview</span>
+        <div class="seg" role="group" aria-label="Preview size">
+          <button type="button" data-size="desktop" aria-pressed="true">Desktop</button>
+          <button type="button" data-size="phone" aria-pressed="false">Phone</button>
+        </div>
+        <button type="button" id="replay" title="Replay the enter screen and entrance animation">↻ Replay</button>
+      </div>
+      <div id="frame" class="preview-frame"><div id="preview" class="stage"></div></div>
+      <p id="notice" class="notice" role="status"></p>
     </main>
   </div>
 
-  <!-- Profile mode -->
-  <div id="profile" class="stage full" hidden></div>
-
-  <script src="app.js"></script>
+  <!-- A shared page -->
+  <div id="profile" class="stage" hidden></div>
 </body>
 </html>
