@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Halo — your bio link</title>
+<meta name="description" content="Build a customizable bio-link profile page. No account, no server: your page lives in its link.">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Editor mode (shown when the URL has no #p= profile) -->
+  <div id="editor" class="editor" hidden>
+    <aside class="panel">
+      <header class="panel-head">
+        <h1 class="brand">halo<span>.</span></h1>
+        <p class="muted">Build your page. Everything is stored in the link you share.</p>
+      </header>
+
+      <form id="form" autocomplete="off">
+        <fieldset>
+          <legend>Profile</legend>
+          <label>Display name <input name="name" maxlength="40"></label>
+          <label>Avatar image URL <input name="avatar" type="url" placeholder="https://…"></label>
+          <label>Bio <textarea name="bio" rows="3" maxlength="300"></textarea></label>
+          <label>Location <input name="location" maxlength="40"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Links</legend>
+          <div id="links"></div>
+          <button type="button" id="add-link" class="ghost">+ Add link</button>
+        </fieldset>
+
+        <fieldset>
+          <legend>Background</legend>
+          <label>Type
+            <select name="bgType">
+              <option value="gradient">Gradient</option>
+              <option value="image">Image</option>
+              <option value="video">Video</option>
+            </select>
+          </label>
+          <div class="row">
+            <label>Color A <input name="bgA" type="color"></label>
+            <label>Color B <input name="bgB" type="color"></label>
+          </div>
+          <label>Image / video URL <input name="bgUrl" type="url" placeholder="https://…"></label>
+          <label>Dim <input name="dim" type="range" min="0" max="90"></label>
+          <label>Blur <input name="blur" type="range" min="0" max="20"></label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Style</legend>
+          <div class="row">
+            <label>Accent <input name="accent" type="color"></label>
+            <label>Card
+              <select name="card">
+                <option value="glass">Glass</option>
+                <option value="solid">Solid</option>
+                <option value="none">None</option>
+              </select>
+            </label>
+          </div>
+          <label>Font
+            <select name="font">
+              <option value="sans">Sans</option>
+              <option value="mono">Mono</option>
+              <option value="serif">Serif</option>
+            </select>
+          </label>
+        </fieldset>
+
+        <fieldset>
+          <legend>Effects</legend>
+          <label class="check"><input type="checkbox" name="fxTypewriter"> Typewriter bio</label>
+          <label class="check"><input type="checkbox" name="fxGlow"> Glowing name</label>
+          <label class="check"><input type="checkbox" name="fxTilt"> Tilt card on hover</label>
+          <label>Particles
+            <select name="fxParticles">
+              <option value="none">None</option>
+              <option value="dust">Dust</option>
+              <option value="snow">Snow</option>
+              <option value="stars">Stars</option>
+            </select>
+          </label>
+          <label>Background music URL (mp3/ogg) <input name="music" type="url" placeholder="https://…"></label>
+          <label class="check"><input type="checkbox" name="splash"> "Click to enter" screen</label>
+          <p class="hint">Browsers only play music after a click, so music turns on the enter screen automatically.</p>
+        </fieldset>
+      </form>
+
+      <footer class="panel-foot">
+        <button type="button" id="share" class="primary">Copy share link</button>
+        <button type="button" id="open" class="ghost">Open page</button>
+        <button type="button" id="reset" class="ghost danger">Reset</button>
+        <p id="status" class="muted" role="status"></p>
+      </footer>
+    </aside>
+
+    <main class="preview-wrap">
+      <div class="preview-label">Live preview</div>
+      <div id="preview" class="stage preview"></div>
+    </main>
+  </div>
+
+  <!-- Profile mode -->
+  <div id="profile" class="stage full" hidden></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
