@@ -5,9 +5,10 @@ import { el, safeUrl, linkHref, platformOf, readableOn, hexToRgb, reduceMotion, 
 import { BADGES } from './schema.js';
 import { startParticles } from './fx/particles.js';
 import { startPointerFx } from './fx/pointer.js';
-import { nameEl, typeBio, animateTitle } from './fx/text.js';
+import { nameEl, typeBio, animateTitle, decodeName } from './fx/text.js';
 import { createPlayer } from './music.js';
 import { startPresence } from './discord.js';
+import { mount3D } from './three/engine.js';
 
 const cleanups = new WeakMap();
 let grainUrl = '';
@@ -35,7 +36,7 @@ export function render(stage, p, opts = {}) {
 
   const motion = !reduceMotion;
   stage.replaceChildren();
-  stage.className = `stage ${preview ? 'preview' : 'full'} font-${p.font} hover-${p.linkHover}`;
+  stage.className = `stage ${preview ? 'preview' : 'full'} font-${p.font} hover-${p.linkHover}${p.scene !== 'none' ? ' has-3d' : ''}`;
   const vars = {
     '--accent': p.accent,
     '--accent-rgb': hexToRgb(p.accent).join(', '),
@@ -45,11 +46,15 @@ export function render(stage, p, opts = {}) {
   };
   for (const [k, v] of Object.entries(vars)) stage.style.setProperty(k, v);
 
-  // Background, dimming and particles
+  // Background, 3D scene, dimming and particles
+  let player = null;
   const bg = background(p);
   const dim = el('div', 'dim');
   dim.style.opacity = String(p.dim / 100);
   stage.append(bg, dim);
+  if (p.scene !== 'none') {
+    add(mount3D(stage, p, { before: dim, notice, audio: () => (p.react ? player?.levels() : null) }));
+  }
   if (p.vignette) stage.append(el('div', 'ov ov-vignette'));
   if (p.particles !== 'none' && motion) {
     add(startParticles(stage, p.particles, { accent: p.accent, density: p.density, mouse: p.particleMouse }));
@@ -89,7 +94,13 @@ export function render(stage, p, opts = {}) {
   dot.hidden = true;
   dot.setAttribute('role', 'img');
   avatar.append(dot);
-  card.append(avatar, nameEl(p.name, p.nameFx));
+  const name = nameEl(p.name, p.nameFx);
+  card.append(avatar, name);
+  if (p.shine !== 'none') {
+    card.classList.add(`shine-${p.shine}`);
+    card.append(el('div', 'shine'));
+    if (finePointer && motion) add(trackShine(stage, card));
+  }
 
   if (p.badges.length) card.append(badgeRow(p.badges));
   if (p.location) card.append(el('p', 'location', `⌖ ${p.location}`));
@@ -101,7 +112,10 @@ export function render(stage, p, opts = {}) {
   activity.hidden = true;
   card.append(dcStatus, bio, activity);
   const links = buildLinks(p);
-  if (links) card.append(links);
+  if (links) {
+    card.append(links);
+    if (p.linkHover === 'magnetic' && finePointer && motion) add(magnetic(links));
+  }
 
   if (p.footer) {
     const foot = el('div', 'made-with');
@@ -130,10 +144,12 @@ export function render(stage, p, opts = {}) {
       useAvatar: p.discordAvatar, showActivity: p.discordActivity, notice,
     }));
   }
-  let player = null;
   if (musicUrl) {
-    player = createPlayer(stage, { url: musicUrl, title: p.musicTitle, volume: p.volume, accent: p.accent, vizCanvas: viz });
+    player = createPlayer(stage, {
+      url: musicUrl, title: p.musicTitle, volume: p.volume, accent: p.accent, vizCanvas: viz, analyse: p.react,
+    });
     add(player.stop);
+    if (p.react && motion) add(pulseWithBeat(card, player));
   }
   add(startPointerFx(stage, { cursor: p.cursorFx, click: p.clickFx, accent: p.accent }));
   if (!preview) add(animateTitle(p.tabTitle.trim() || p.name.trim() || 'halo', p.tabFx));
@@ -147,6 +163,7 @@ export function render(stage, p, opts = {}) {
     started = true;
     if (entrance) card.classList.replace('pre-enter', entrance);
     add(typeBio(bio, p.bio, p.bioFx));
+    if (p.nameFx === 'decode') add(decodeName(name, animate));
     if (withSound) player?.play();
   };
 
@@ -212,6 +229,68 @@ function follow(stage, target, transform) {
     stage.removeEventListener('pointermove', move);
     stage.removeEventListener('pointerleave', leave);
   };
+}
+
+/** Glare/holo shine: a light spot that follows the pointer across the card. */
+function trackShine(stage, card) {
+  const move = e => {
+    const r = card.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    const near = x > -0.15 && x < 1.15 && y > -0.15 && y < 1.15;
+    card.style.setProperty('--px', x.toFixed(3));
+    card.style.setProperty('--py', y.toFixed(3));
+    card.style.setProperty('--shine-o', near ? '1' : '0');
+  };
+  const leave = () => card.style.setProperty('--shine-o', '0');
+  stage.addEventListener('pointermove', move);
+  stage.addEventListener('pointerleave', leave);
+  return () => {
+    stage.removeEventListener('pointermove', move);
+    stage.removeEventListener('pointerleave', leave);
+  };
+}
+
+/** Magnetic links lean toward the pointer while it's over them. */
+function magnetic(list) {
+  let current = null;
+  const reset = a => {
+    a.style.setProperty('--dx', '0');
+    a.style.setProperty('--dy', '0');
+  };
+  const move = e => {
+    const a = e.target.closest('.link');
+    if (current && current !== a) reset(current);
+    current = a;
+    if (!a) return;
+    const r = a.getBoundingClientRect();
+    a.style.setProperty('--dx', ((e.clientX - (r.left + r.width / 2)) * 0.18).toFixed(1));
+    a.style.setProperty('--dy', ((e.clientY - (r.top + r.height / 2)) * 0.3).toFixed(1));
+  };
+  const leave = () => {
+    if (current) reset(current);
+    current = null;
+  };
+  list.addEventListener('pointermove', move);
+  list.addEventListener('pointerleave', leave);
+  return () => {
+    list.removeEventListener('pointermove', move);
+    list.removeEventListener('pointerleave', leave);
+  };
+}
+
+/** "React to music": the card glows and the avatar swells on each beat. */
+function pulseWithBeat(card, player) {
+  card.classList.add('reactive');
+  let raf = 0;
+  let shown = '';
+  const tick = () => {
+    raf = requestAnimationFrame(tick);
+    const beat = (player.levels()?.beat ?? 0).toFixed(2);
+    if (beat !== shown) card.style.setProperty('--beat', (shown = beat));
+  };
+  raf = requestAnimationFrame(tick);
+  return () => cancelAnimationFrame(raf);
 }
 
 function fallbackAvatar(name) {

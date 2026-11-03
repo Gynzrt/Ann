@@ -1,15 +1,19 @@
-/* Background music: a small player pill plus an optional audio visualizer
- * drawn as bars around the avatar. */
+/* Background music: a small player pill, an optional visualizer drawn as
+ * bars around the avatar, and beat levels other effects can react to. */
 import { el } from './util.js';
 
 const TAU = Math.PI * 2;
 
-export function createPlayer(stage, { url, title, volume, accent, vizCanvas }) {
+/**
+ * opts.vizCanvas – draw the avatar visualizer here (optional)
+ * opts.analyse   – analyse the audio even without a visualizer (for "react to music")
+ */
+export function createPlayer(stage, { url, title, volume, accent, vizCanvas, analyse }) {
   const audio = new Audio();
   audio.loop = true;
   audio.preload = 'auto';
   audio.volume = volume / 100;
-  let viz = !!vizCanvas;
+  let canAnalyse = !!(vizCanvas || analyse);
   let wanted = false;
   let stopped = false;
   let ac = null;
@@ -17,13 +21,13 @@ export function createPlayer(stage, { url, title, volume, accent, vizCanvas }) {
   let bins = null;
   let raf = 0;
 
-  if (viz) {
-    // An analyser can only read cross-origin audio when the host sends CORS
-    // headers. Try that first; if loading fails, retry as plain playback.
+  if (canAnalyse) {
+    // Reading audio data needs the host to allow cross-origin access (CORS).
+    // Try that first; if loading fails, retry as plain playback.
     audio.crossOrigin = 'anonymous';
     audio.addEventListener('error', () => {
       if (stopped || audio.crossOrigin === null) return;
-      viz = false;
+      canAnalyse = false;
       audio.removeAttribute('crossorigin');
       audio.src = url;
       if (wanted) audio.play().catch(() => {});
@@ -73,7 +77,7 @@ export function createPlayer(stage, { url, title, volume, accent, vizCanvas }) {
     wanted = true;
     audio
       .play()
-      .then(() => viz && startViz())
+      .then(() => canAnalyse && startAnalysis())
       .catch(() => {});
   }
 
@@ -82,25 +86,57 @@ export function createPlayer(stage, { url, title, volume, accent, vizCanvas }) {
     audio.pause();
   }
 
-  function startViz() {
+  function startAnalysis() {
     if (!ac) {
       try {
         ac = new (window.AudioContext || window.webkitAudioContext)();
         const src = ac.createMediaElementSource(audio);
         analyser = ac.createAnalyser();
         analyser.fftSize = 128;
-        analyser.smoothingTimeConstant = 0.82;
+        analyser.smoothingTimeConstant = 0.8;
         src.connect(analyser);
         analyser.connect(ac.destination);
         bins = new Uint8Array(analyser.frequencyBinCount);
       } catch {
-        viz = false;
+        canAnalyse = false;
         return;
       }
     }
     ac.resume().catch(() => {});
-    vizCanvas.hidden = false;
-    if (!raf) raf = requestAnimationFrame(draw);
+    if (vizCanvas) {
+      vizCanvas.hidden = false;
+      if (!raf) raf = requestAnimationFrame(draw);
+    }
+  }
+
+  /* One analysis per frame, shared by every effect that asks for it. */
+  const lv = { bass: 0, mid: 0, treble: 0, level: 0, beat: 0 };
+  let avgBass = 0;
+  let sampledAt = -1;
+  function sample() {
+    const now = performance.now();
+    if (now - sampledAt < 8) return lv;
+    sampledAt = now;
+    analyser.getByteFrequencyData(bins);
+    const avg = (from, to) => {
+      let s = 0;
+      for (let i = from; i < to; i++) s += bins[i];
+      return s / ((to - from) * 255);
+    };
+    lv.bass = avg(1, 6);
+    lv.mid = avg(6, 24);
+    lv.treble = avg(24, 56);
+    lv.level = avg(1, 56);
+    // A beat is bass rising above its own recent average.
+    avgBass += (lv.bass - avgBass) * 0.05;
+    lv.beat = Math.min(1, Math.max(0, (lv.bass - avgBass) * 4));
+    return lv;
+  }
+
+  /** Current levels (0..1), or null when nothing is playing or the audio can't be read. */
+  function levels() {
+    if (!analyser || audio.paused) return null;
+    return sample();
   }
 
   function draw() {
@@ -112,7 +148,7 @@ export function createPlayer(stage, { url, title, volume, accent, vizCanvas }) {
     const c = vizCanvas.getContext('2d');
     c.setTransform(dpr, 0, 0, dpr, 0, 0);
     c.clearRect(0, 0, size, size);
-    analyser.getByteFrequencyData(bins);
+    sample();
     const N = 56;
     const mid = size / 2;
     const r0 = mid - 32;
@@ -140,6 +176,7 @@ export function createPlayer(stage, { url, title, volume, accent, vizCanvas }) {
 
   return {
     play,
+    levels,
     stop() {
       stopped = true;
       wanted = false;

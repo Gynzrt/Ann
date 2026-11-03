@@ -42,6 +42,12 @@
   100% { transform: translate(-12%, 18%) scale(.9); }
 }
 .bg-media { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* The WebGL scene sits on top of the regular background, which shows until it's ready. */
+.scene3d {
+  position: absolute; inset: 0; z-index: 0; width: 100%; height: 100%;
+  opacity: 0; pointer-events: none; transition: opacity 1.2s ease;
+}
+.scene3d[data-ready] { opacity: 1; }
 .dim { position: absolute; inset: 0; z-index: 1; background: #000; pointer-events: none; }
 
 .ov { position: absolute; inset: 0; pointer-events: none; }
@@ -81,6 +87,42 @@
   box-shadow: 0 0 32px rgba(var(--accent-rgb), .25), inset 0 0 32px rgba(var(--accent-rgb), .08);
 }
 .card-none { padding-top: 0; }
+/* Over a bright 3D scene, tint the glass a little darker so text stays readable. */
+.has-3d .card-glass { background: rgba(12, 12, 22, .34); }
+.has-3d .card { text-shadow: 0 1px 14px rgba(0, 0, 0, .35); }
+
+/* Shine: a light that follows the pointer (--px/--py are 0..1 across the card). */
+@property --px { syntax: "<number>"; inherits: true; initial-value: 0.3; }
+@property --py { syntax: "<number>"; inherits: true; initial-value: 0.2; }
+.shine {
+  position: absolute; inset: 0; z-index: 1; border-radius: inherit; pointer-events: none;
+  opacity: var(--shine-o, 0); transition: opacity .4s ease;
+}
+.shine-glare .shine {
+  background: radial-gradient(circle at calc(var(--px) * 100%) calc(var(--py) * 100%),
+    rgba(255, 255, 255, .2), rgba(255, 255, 255, .05) 35%, transparent 65%);
+}
+.shine-holo .shine {
+  background:
+    radial-gradient(circle at calc(var(--px) * 100%) calc(var(--py) * 100%), rgba(255, 255, 255, .3), transparent 45%),
+    linear-gradient(115deg, transparent 18%, rgba(255, 0, 170, .5) 30%, rgba(255, 220, 0, .45) 40%,
+      rgba(0, 255, 170, .45) 50%, rgba(0, 170, 255, .5) 60%, rgba(170, 80, 255, .5) 70%, transparent 82%);
+  background-position: center, calc(var(--px) * 100%) calc(var(--py) * 100%);
+  background-size: 100% 100%, 260% 260%;
+  mix-blend-mode: color-dodge;
+  opacity: calc(var(--shine-o, 0) * .55);
+}
+@media (hover: none) {
+  /* No pointer to follow: let the light drift on its own. */
+  .shine-glare .shine, .shine-holo .shine { --shine-o: .8; animation: shine-drift 7s ease-in-out infinite alternate; }
+}
+@keyframes shine-drift { from { --px: 0; --py: .1; } to { --px: 1; --py: .9; } }
+
+/* React to the music */
+.card.reactive:not(.card-none) {
+  box-shadow: 0 24px 64px rgba(0, 0, 0, .35), 0 0 calc(12px + var(--beat, 0) * 80px) rgba(var(--accent-rgb), calc(.15 + var(--beat, 0) * .6));
+}
+.card.reactive .avatar-wrap { transform: scale(calc(1 + var(--beat, 0) * .08)); }
 
 .card.pre-enter { opacity: 0; }
 .card.enter-fade { animation: in-fade .8s cubic-bezier(.2, .8, .2, 1) both; }
@@ -163,6 +205,7 @@
   24% { clip-path: inset(45% 0 30% 0); transform: translate(2px, 0); }
   36%, 100% { clip-path: inset(100% 0 0 0); transform: none; }
 }
+.decode { white-space: pre-wrap; }
 .wave-ch { display: inline-block; animation: wave 1.8s ease-in-out infinite; }
 @keyframes wave { 0%, 60%, 100% { transform: translateY(0); } 30% { transform: translateY(-7px); } }
 
@@ -255,6 +298,18 @@
 .hover-shine .link:hover { background: rgba(255, 255, 255, .13); }
 .hover-slide .link:hover { transform: translateX(6px); border-color: var(--accent); background: rgba(255, 255, 255, .12); }
 .hover-slide .links-grid .link:hover, .hover-slide .links-icons .link:hover { transform: translateY(-3px); }
+.hover-magnetic .link {
+  transform: translate(calc(var(--dx, 0) * 1px), calc(var(--dy, 0) * 1px));
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1), background .15s, border-color .15s, box-shadow .2s;
+}
+.hover-magnetic .link .ico {
+  transform: translate(calc(var(--dx, 0) * .5px), calc(var(--dy, 0) * .5px));
+  transition: transform .3s cubic-bezier(.2, .8, .2, 1);
+}
+.hover-magnetic .link:hover {
+  border-color: var(--accent); background: rgba(255, 255, 255, .13);
+  box-shadow: 0 10px 30px rgba(var(--accent-rgb), .25);
+}
 
 .made-with { margin-top: 22px; font-size: 12px; text-align: center; }
 .made-with a { color: rgba(255, 255, 255, .5); text-decoration: none; }

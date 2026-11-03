@@ -28,6 +28,12 @@
         </section>
 
         <details open>
+          <summary>3D scene <span class="new">new</span></summary>
+          <label>Scene <select name="scene"></select></label>
+          <p class="hint" id="scene-hint"></p>
+        </details>
+
+        <details open>
           <summary>Profile</summary>
           <label>Display name <input name="name" maxlength="40"></label>
           <label>Avatar image URL <input name="avatar" type="url" placeholder="https://…"></label>
@@ -92,6 +98,7 @@
             <label>Avatar shape <select name="avatarShape"></select></label>
             <label>Avatar ring <select name="avatarRing"></select></label>
           </div>
+          <label>Card shine <select name="shine"></select></label>
           <label class="check"><input type="checkbox" name="tilt"> 3D tilt when the mouse moves</label>
         </details>
 
@@ -122,7 +129,8 @@
           <label>Track title <input name="musicTitle" maxlength="60" placeholder="Shown in the player"></label>
           <label>Volume <span class="val"></span><input name="volume" type="range" min="0" max="100"></label>
           <label class="check"><input type="checkbox" name="visualizer"> Visualizer around the avatar</label>
-          <p class="hint">The visualizer only works if the audio host allows cross-origin access (CORS). If it doesn’t, the music still plays.</p>
+          <label class="check"><input type="checkbox" name="react"> React to the music</label>
+          <p class="hint">“React to the music” makes the 3D scene and the card glow pulse with the beat. Both it and the visualizer need an audio host that allows cross-origin access (CORS). If it doesn’t, the music still plays.</p>
         </details>
 
         <details>

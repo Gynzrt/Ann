@@ -6,6 +6,17 @@ The whole page is compressed into the link's `#p=` part, so nothing is stored an
 
 ## Features
 
+**3D scenes (Three.js)**
+- Six real-time WebGL backgrounds that use your colours and react to the mouse:
+  - **Galaxy:** a spiral of tens of thousands of stars
+  - **Morphing orb:** a glossy sphere shaped by 3D noise
+  - **Liquid gradient:** a flowing, domain-warped gradient
+  - **Particle waves:** an ocean of points; the mouse makes ripples
+  - **Hyperspace:** hold the mouse button for warp speed
+  - **Glossy shapes:** iridescent objects; click one to spin it
+- **React to the music:** the scene, card glow and avatar pulse with the beat
+- Three.js is only downloaded when a page uses a scene. Rendering pauses when the page is off screen, lowers its resolution if frames get slow, and shows a still frame for visitors who prefer reduced motion. If WebGL isn't available, the regular background shows instead.
+
 **Profile**
 - Avatar, display name, multi-line bio and location
 - Up to 6 badges (developer, gamer, artist, night owl, and more)
@@ -19,14 +30,16 @@ The whole page is compressed into the link's `#p=` part, so nothing is stored an
 - List, grid or icons-only layout, with lift, glow, shine or slide hover effects
 
 **Look**
-- 8 one-click themes: Midnight, Sakura, Terminal, Vapor, Ember, Frost, Candy and Mono
+- 14 one-click themes. Six use 3D scenes (Nebula, Liquid, Orb, Hyperdrive, Tide, Gloss); the others are Midnight, Sakura, Terminal, Vapor, Ember, Frost, Candy and Mono.
+- Card shine: a glare or holographic foil that follows the cursor
 - Gradient (optionally animated), aurora, image or video backgrounds, with dim, blur and mouse parallax
 - Vignette, film grain and scanline overlays
 - Glass, solid, outline or no card. Sans, rounded, mono or serif fonts.
 - Circle, rounded or square avatar with a solid, spinning or pulsing ring
 
 **Effects**
-- Name: glow, rainbow, shimmer, neon flicker, glitch or wave
+- Name: glow, rainbow, shimmer, neon flicker, glitch, wave or decode (letters scramble, then lock in)
+- Magnetic links that lean toward the cursor
 - Bio: typewriter, or rotate through lines one at a time
 - Particles: dust, stars (with shooting stars), snow, fireflies, rain, bubbles, hearts, petals, confetti, network or code rain. You can set the amount and make them react to the mouse.
 - Cursor: glow trail, sparkles or a custom ring. Click: burst or ripple.
@@ -63,7 +76,10 @@ Then open http://localhost:8000. Any static host works too, such as GitHub Pages
 | `js/render.js` | Builds the page from a profile |
 | `js/editor.js` | Editor form, preview, share, import and export |
 | `js/fx/` | Particles, cursor and click effects, text effects |
-| `js/music.js`, `js/discord.js` | Music player and visualizer, Discord presence |
+| `js/three/engine.js` | Runs the 3D scene: loads Three.js, reuses one renderer, handles input, pausing and resolution |
+| `js/three/scenes.js` | The six 3D scenes and their shaders |
+| `js/music.js`, `js/discord.js` | Music player, visualizer and beat levels; Discord presence |
+| `vendor/three.module.min.js` | [Three.js](https://threejs.org) r169, MIT licence (`vendor/three.LICENSE`) |
 
 Links only store settings that differ from the defaults in `schema.js`, which keeps them short. **Never change an existing default.** That would change pages people have already shared. New settings are fine as long as their default means "off". Links made with the first version of halo still open correctly.
 

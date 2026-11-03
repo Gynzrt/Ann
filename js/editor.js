@@ -1,12 +1,22 @@
 import { el, linkHref, platformOf } from './util.js';
-import { BASE, STARTER, OPTIONS, BADGES, PRESETS, MAX_BADGES, MAX_LINKS, clean, optionLabel } from './schema.js';
+import { BASE, STARTER, OPTIONS, BADGES, PRESETS, PRESET_BASE, MAX_BADGES, MAX_LINKS, clean, optionLabel } from './schema.js';
 import { encode, decode } from './codec.js';
 import { render } from './render.js';
 
 export const DRAFT_KEY = 'halo:draft';
 
-// Changing one of these replays the card entrance in the preview.
-const ANIMATED_FIELDS = new Set(['cardAnim']);
+// Changing one of these replays the entrance animations in the preview.
+const ANIMATED_FIELDS = new Set(['cardAnim', 'nameFx']);
+
+const SCENE_HINTS = {
+  none: 'Add a real-time 3D background behind your card. It uses your background and accent colours.',
+  galaxy: 'A spiral galaxy of glowing stars that drifts as the mouse moves.',
+  orb: 'A glossy orb that slowly morphs. Turn on “React to the music” to make it pulse.',
+  liquid: 'A flowing gradient made from your two background colours and accent.',
+  waves: 'An ocean of glowing points. Moving the mouse sends ripples across it.',
+  warp: 'Stars rushing past. Hold the mouse button down to jump to warp speed.',
+  shapes: 'Glossy, iridescent shapes floating around your card. Click one to spin it.',
+};
 
 export function startEditor(initial) {
   const $ = id => document.getElementById(id);
@@ -94,6 +104,7 @@ export function startEditor(initial) {
     }
     const id = form.elements.discordId;
     id.classList.toggle('invalid', !!id.value.trim() && !state.discordId);
+    $('scene-hint').textContent = SCENE_HINTS[state.scene] || '';
   }
 
   function update(e) {
@@ -197,8 +208,9 @@ export function startEditor(initial) {
       const swatch = el('span', 'swatch');
       swatch.style.background = `linear-gradient(135deg, ${preset.bgA}, ${preset.bgB})`;
       swatch.style.setProperty('--dot', preset.accent);
+      if (preset.scene && preset.scene !== 'none') swatch.append(el('span', 'tag', '3D'));
       b.append(swatch, el('span', null, name));
-      b.addEventListener('click', () => load({ ...state, ...preset, v: 2 }, `Applied the ${name} theme.`));
+      b.addEventListener('click', () => load({ ...state, ...PRESET_BASE, ...preset, v: 2 }, `Applied the ${name} theme.`));
       box.append(b);
     }
   }

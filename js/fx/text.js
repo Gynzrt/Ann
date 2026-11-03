@@ -13,11 +13,56 @@ export function nameEl(name, fx) {
       s.style.animationDelay = `${(i * 0.07).toFixed(2)}s`;
       h.append(s);
     });
+  } else if (fx === 'decode' && !reduceMotion) {
+    h.append(el('span', 'sr-only', text));
+    const shown = el('span', 'decode', text);
+    shown.setAttribute('aria-hidden', 'true');
+    h.append(shown);
   } else {
     h.textContent = text;
     if (fx === 'glitch') h.dataset.text = text;
   }
   return h;
+}
+
+const SCRAMBLE = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789#$%&*+=<>?/';
+
+/**
+ * The "decode" name effect: letters cycle through random characters and lock
+ * in left to right. Plays on start and again whenever the pointer enters the
+ * name. Returns a stop function.
+ */
+export function decodeName(h, playNow = true) {
+  const target = h.querySelector('.decode');
+  if (!target) return () => {};
+  const text = Array.from(target.textContent);
+  let raf = 0;
+  const run = () => {
+    cancelAnimationFrame(raf);
+    const start = performance.now();
+    let tick = -1;
+    const step = now => {
+      const elapsed = now - start;
+      const locked = Math.floor(elapsed / 55);
+      const t = Math.floor(elapsed / 40); // change the noise ~25 times a second
+      if (t !== tick) {
+        tick = t;
+        target.textContent = text
+          .map((ch, i) => (i < locked || ch === ' ' ? ch : SCRAMBLE[(Math.random() * SCRAMBLE.length) | 0]))
+          .join('');
+      }
+      if (locked < text.length) raf = requestAnimationFrame(step);
+      else target.textContent = text.join('');
+    };
+    raf = requestAnimationFrame(step);
+  };
+  if (playNow) run();
+  h.addEventListener('pointerenter', run);
+  return () => {
+    cancelAnimationFrame(raf);
+    h.removeEventListener('pointerenter', run);
+    target.textContent = text.join('');
+  };
 }
 
 /**

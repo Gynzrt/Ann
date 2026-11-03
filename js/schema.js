@@ -10,15 +10,17 @@ export const MAX_LINKS = 12;
 export const MAX_BADGES = 6;
 
 export const OPTIONS = {
+  scene: ['none', 'galaxy', 'orb', 'liquid', 'waves', 'warp', 'shapes'],
   linkStyle: ['list', 'grid', 'icons'],
-  linkHover: ['lift', 'glow', 'shine', 'slide'],
+  linkHover: ['lift', 'glow', 'shine', 'slide', 'magnetic'],
   bgType: ['gradient', 'aurora', 'image', 'video'],
+  shine: ['none', 'glare', 'holo'],
   card: ['glass', 'solid', 'outline', 'none'],
   font: ['sans', 'rounded', 'mono', 'serif'],
   avatarShape: ['circle', 'rounded', 'square'],
   avatarRing: ['solid', 'spin', 'pulse', 'none'],
   cardAnim: ['none', 'fade', 'zoom', 'blur', 'drop'],
-  nameFx: ['none', 'glow', 'rainbow', 'shimmer', 'neon', 'glitch', 'wave'],
+  nameFx: ['none', 'glow', 'rainbow', 'shimmer', 'neon', 'glitch', 'wave', 'decode'],
   bioFx: ['none', 'typewriter', 'rotate'],
   tabFx: ['none', 'type', 'scroll'],
   particles: ['none', 'dust', 'stars', 'snow', 'fireflies', 'rain', 'bubbles', 'hearts', 'petals', 'confetti', 'network', 'code'],
@@ -27,6 +29,11 @@ export const OPTIONS = {
 };
 
 const LABELS = {
+  scene: {
+    none: 'Off', galaxy: 'Galaxy', orb: 'Morphing orb', liquid: 'Liquid gradient',
+    waves: 'Particle waves', warp: 'Hyperspace', shapes: 'Glossy shapes',
+  },
+  shine: { none: 'None', glare: 'Glare', holo: 'Holographic' },
   linkStyle: { icons: 'Icons only' },
   card: { none: 'No card' },
   avatarRing: { spin: 'Spinning' },
@@ -106,6 +113,9 @@ export const BASE = Object.freeze({
   splash: false,
   splashText: '',
   footer: true,
+  scene: 'none',
+  shine: 'none',
+  react: false,
 });
 
 /** The example page a new visitor starts editing from. */
@@ -121,23 +131,63 @@ export const STARTER = {
     { type: 'copy', label: 'Discord username', value: 'yourname' },
   ],
   favicons: true,
-  bgAnimate: true,
+  scene: 'galaxy',
+  bgA: '#05040c',
+  bgB: '#3b1d6e',
+  accent: '#9db4ff',
+  dim: 10,
   vignette: true,
-  grain: true,
   avatarRing: 'spin',
   cardAnim: 'fade',
   tilt: true,
-  nameFx: 'glow',
+  shine: 'glare',
+  nameFx: 'decode',
   bioFx: 'rotate',
   tabFx: 'type',
-  particles: 'network',
-  particleMouse: true,
+  linkHover: 'magnetic',
   cursorFx: 'trail',
   clickFx: 'burst',
 };
 
+/** Style fields every theme sets, so switching themes never leaves odd leftovers. */
+export const PRESET_BASE = {
+  scene: 'none', shine: 'none', dim: 30, bgType: 'gradient', bgAnimate: false, parallax: false,
+  vignette: false, grain: false, scanlines: false, particles: 'none', linkStyle: 'list',
+  linkHover: 'lift', cardAnim: 'fade', nameFx: 'none',
+};
+
 /** One-click looks. They change style only, never the profile's content. */
 export const PRESETS = {
+  Nebula: {
+    scene: 'galaxy', bgA: '#05040c', bgB: '#3b1d6e', accent: '#9db4ff', dim: 10,
+    card: 'glass', font: 'sans', avatarShape: 'circle', avatarRing: 'spin', nameFx: 'decode', shine: 'glare',
+    vignette: true, linkHover: 'magnetic', cursorFx: 'trail', clickFx: 'burst',
+  },
+  Liquid: {
+    scene: 'liquid', bgA: '#2b1166', bgB: '#06607a', accent: '#ff6ec7', dim: 0,
+    card: 'glass', font: 'rounded', avatarShape: 'rounded', avatarRing: 'pulse', nameFx: 'shimmer', shine: 'holo',
+    grain: true, linkHover: 'magnetic', cursorFx: 'sparkle', clickFx: 'ripple',
+  },
+  Orb: {
+    scene: 'orb', bgA: '#070b18', bgB: '#1c2f6b', accent: '#5eead4', dim: 5,
+    card: 'glass', font: 'sans', avatarShape: 'circle', avatarRing: 'solid', nameFx: 'glow', shine: 'holo',
+    vignette: true, linkHover: 'glow', cursorFx: 'ring', clickFx: 'ripple',
+  },
+  Hyperdrive: {
+    scene: 'warp', bgA: '#000000', bgB: '#0a1030', accent: '#7cc4ff', dim: 0,
+    card: 'solid', font: 'mono', avatarShape: 'square', avatarRing: 'solid', nameFx: 'decode', shine: 'glare',
+    vignette: true, scanlines: true, linkHover: 'magnetic', cursorFx: 'ring', clickFx: 'burst',
+  },
+  Tide: {
+    scene: 'waves', bgA: '#02060f', bgB: '#0b2f57', accent: '#4de1ff', dim: 0,
+    card: 'glass', font: 'sans', avatarShape: 'circle', avatarRing: 'pulse', nameFx: 'glow', shine: 'glare',
+    vignette: true, linkHover: 'lift', cursorFx: 'trail', clickFx: 'ripple',
+  },
+  Gloss: {
+    scene: 'shapes', bgA: '#0f0c18', bgB: '#2b1d3f', accent: '#ff8fc7', dim: 0, bgAnimate: true,
+    card: 'glass', font: 'rounded', avatarShape: 'rounded', avatarRing: 'spin', nameFx: 'shimmer', shine: 'holo',
+    vignette: true, grain: true, linkHover: 'magnetic', cursorFx: 'sparkle', clickFx: 'burst',
+  },
   Midnight: {
     bgType: 'gradient', bgA: '#0f1226', bgB: '#2a1b4d', bgAnimate: true, accent: '#8ea2ff',
     card: 'glass', font: 'sans', avatarShape: 'circle', avatarRing: 'spin', nameFx: 'glow',
