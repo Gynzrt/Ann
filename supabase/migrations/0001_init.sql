@@ -1,4 +1,4 @@
--- halo schema: profiles, links, views, uploads.
+-- ayas.kys schema: profiles, links, views, uploads.
 -- Run with `supabase db push` or paste into the SQL editor of your project.
 
 create extension if not exists pgcrypto;

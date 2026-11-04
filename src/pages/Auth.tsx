@@ -13,7 +13,7 @@ function Shell({ title, sub, children, footer }: { title: string; sub: string; c
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px]" style={{ background: 'radial-gradient(50% 100% at 50% 0%, rgba(139,92,246,.10), transparent 70%)' }} aria-hidden />
       <div className="bg-dots pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(50%_50%_at_50%_40%,#000,transparent)]" aria-hidden />
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }} className="relative w-full max-w-[400px]">
-        <Link to="/" className="mx-auto mb-8 flex w-fit rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50" aria-label="halo home"><Logo size={28} className="text-[18px]" /></Link>
+        <Link to="/" className="mx-auto mb-8 flex w-fit rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50" aria-label="ayas.kys home"><Logo size={28} className="text-[18px]" /></Link>
         <div className="rounded-[18px] border border-white/[.07] bg-card/90 p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,.8),inset_0_1px_0_rgba(255,255,255,.03)] backdrop-blur">
           <h1 className="text-[20px] font-semibold tracking-[-0.02em] text-white">{title}</h1>
           <p className="mt-1.5 text-[13.5px] text-zinc-500">{sub}</p>

@@ -1,3 +1,4 @@
+// Storage names keep the app's original 'halo' prefix so data saved before the rename still loads.
 const DB_NAME = 'halo';
 const STORE = 'kv';
 

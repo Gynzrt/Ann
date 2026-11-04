@@ -1,4 +1,4 @@
-# halo
+# ayas.kys
 
 A link-in-bio platform: claim a username, design a profile page with layouts, effects and music, and share `yoursite.com/username`.
 

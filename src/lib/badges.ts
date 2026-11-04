@@ -12,9 +12,9 @@ export interface Badge {
 }
 
 export const BADGES: Badge[] = [
-  { id: 'staff', name: 'Staff', description: 'A member of the halo team', icon: ShieldCheck, color: '#60a5fa', selectable: false },
+  { id: 'staff', name: 'Staff', description: 'A member of the ayas.kys team', icon: ShieldCheck, color: '#60a5fa', selectable: false },
   { id: 'verified', name: 'Verified', description: 'A verified creator', icon: Star, color: '#facc15', selectable: false },
-  { id: 'premium', name: 'Premium', description: 'Supports halo with Premium', icon: Gem, color: '#a78bfa', selectable: false },
+  { id: 'premium', name: 'Premium', description: 'Supports ayas.kys with Premium', icon: Gem, color: '#a78bfa', selectable: false },
   { id: 'early', name: 'Early Supporter', description: 'One of the first 100 accounts', icon: Rocket, color: '#f472b6', selectable: false },
   { id: 'bug-hunter', name: 'Bug Hunter', description: 'Reported a confirmed bug', icon: Bug, color: '#34d399', selectable: false },
   { id: 'winner', name: 'Winner', description: 'Won a community event', icon: Trophy, color: '#fbbf24', selectable: false },

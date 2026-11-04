@@ -83,7 +83,7 @@ export function ProfileTab() {
         </Field>
       </Section>
 
-      <Section title="Badges" description="Pick the badges shown on your profile. Locked badges are awarded by halo.">
+      <Section title="Badges" description="Pick the badges shown on your profile. Locked badges are awarded by ayas.kys.">
         <div className="grid grid-cols-2 gap-2">
           {badges.map((b) => {
             const on = owned.has(b.id);

@@ -24,6 +24,7 @@ interface DB {
   nextUid: number;
 }
 
+// Keeps the original 'halo' prefix so existing sessions survive the rename (see idb.ts).
 const SESSION_KEY = 'halo.session';
 const DB_KEY = 'db';
 

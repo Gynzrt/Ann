@@ -27,7 +27,7 @@ export function SiteNav() {
   return (
     <header className={cx('fixed inset-x-0 top-0 z-40 border-b transition-[background-color,border-color] duration-300', scrolled || open ? 'border-white/[.06] bg-bg/80 backdrop-blur-xl' : 'border-transparent')}>
       <nav className="mx-auto flex h-16 max-w-[1200px] items-center justify-between px-4 sm:px-6">
-        <Link to="/" aria-label="halo home" className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50"><Logo /></Link>
+        <Link to="/" aria-label="ayas.kys home" className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50"><Logo /></Link>
         <div className="absolute left-1/2 hidden -translate-x-1/2 items-center gap-1 md:flex">
           {LINKS.map((l) => (
             <NavLink
@@ -109,7 +109,7 @@ export function SiteFooter() {
           </div>
         </div>
       </div>
-      <div className="mx-auto max-w-[1200px] px-4 pb-10 text-[12px] text-zinc-600 sm:px-6">© {new Date().getFullYear()} halo</div>
+      <div className="mx-auto max-w-[1200px] px-4 pb-10 text-[12px] text-zinc-600 sm:px-6">© {new Date().getFullYear()} ayas.kys</div>
     </footer>
   );
 }

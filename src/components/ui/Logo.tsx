@@ -14,7 +14,9 @@ export function Logo({ className, size = 24 }: { className?: string; size?: numb
   return (
     <span className={cx('inline-flex items-center gap-2.5 text-[16px] font-semibold tracking-[-0.02em] text-white', className)}>
       <LogoMark size={size} />
-      halo
+      <span>
+        ayas<span className="text-zinc-500">.kys</span>
+      </span>
     </span>
   );
 }

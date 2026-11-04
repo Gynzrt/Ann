@@ -182,7 +182,7 @@ function Sidebar({ collapsed, onToggle, onNav, mobile }: { collapsed: boolean; o
   return (
     <div className="flex h-full flex-col">
       <div className={cx('flex h-16 shrink-0 items-center', collapsed ? 'justify-center' : 'px-5')}>
-        <Link to="/" aria-label="halo home" className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50">
+        <Link to="/" aria-label="ayas.kys home" className="rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50">
           {collapsed ? <LogoMark size={26} /> : <Logo />}
         </Link>
       </div>
@@ -258,7 +258,7 @@ function ShellInner() {
         <button type="button" onClick={() => setOpen(true)} className="grid h-9 w-9 place-items-center rounded-[10px] text-zinc-300 transition hover:bg-white/[.05]" aria-label="Open menu">
           <Menu size={19} />
         </button>
-        <Link to="/" aria-label="halo home"><Logo /></Link>
+        <Link to="/" aria-label="ayas.kys home"><Logo /></Link>
         <span className="w-9" />
       </header>
 
