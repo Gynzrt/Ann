@@ -23,7 +23,15 @@ const ENTRANCE = {
  * container, skips the enter screen unless replayed, shows placeholders for
  * widgets that still need setting up, and never touches the tab title.
  */
-export function ProfileView({ p, preview = false, replayKey = 0, still = false }: { p: Profile; preview?: boolean; replayKey?: number; still?: boolean }) {
+export function ProfileView({ p, preview = false, replayKey = 0, still = false, gl = true }: {
+  p: Profile;
+  preview?: boolean;
+  replayKey?: number;
+  /** A static thumbnail: no animation, cursor or entrance. */
+  still?: boolean;
+  /** False shows WebGL effects as posters (for galleries with many previews). */
+  gl?: boolean;
+}) {
   const ap = p.appearance;
   const root = useRef<HTMLDivElement>(null);
   const audio = useRef<AudioHandle>(null);
@@ -81,7 +89,7 @@ export function ProfileView({ p, preview = false, replayKey = 0, still = false }
           {bg && ap.backgroundKind !== 'video' && <img src={bg} alt="" className="h-full w-full object-cover" />}
           {bg && <div className="absolute inset-0" style={{ background: hexA('#000000', ap.backgroundDim / 100) }} />}
           {!bg && <div className="absolute inset-0" style={{ background: `radial-gradient(80% 55% at 50% 0%, ${hexA(ap.accentColor, 0.1)}, transparent 70%)` }} />}
-          {!still && <BackgroundFx effect={ap.backgroundEffect} color={ap.accentColor} />}
+          <BackgroundFx ap={ap} hasMedia={!!bg} scope={root} animate={!still} gl={gl} />
         </div>
 
         {!still && <Cursor style={ap.cursor} color={ap.accentColor} url={ap.cursorUrl} scope={root} />}

@@ -1,13 +1,41 @@
 import { useEffect, useRef } from 'react';
-import type { BackgroundEffect } from '@/lib/types';
+import type { RefObject } from 'react';
+import type { Appearance, BackgroundEffect } from '@/lib/types';
 import { hexA } from '@/lib/util';
+import { GLBackground, isGlEffect } from './gl/GLBackground';
 
 interface P {
   x: number; y: number; vx: number; vy: number; r: number; a: number; t: number;
 }
 
-/** Canvas background effects. Pauses when hidden and respects reduced motion. */
-export function BackgroundFx({ effect, color }: { effect: BackgroundEffect; color: string }) {
+/**
+ * The animated layer behind a profile. WebGL effects run on the GPU (or show a
+ * still poster when `gl` is false); the rest are drawn on a 2D canvas.
+ * `animate` false means a still thumbnail: 2D effects are skipped entirely.
+ */
+export function BackgroundFx({ ap, hasMedia, scope, animate = true, gl = true }: {
+  ap: Appearance;
+  hasMedia: boolean;
+  scope: RefObject<HTMLElement>;
+  animate?: boolean;
+  gl?: boolean;
+}) {
+  const effect = ap.backgroundEffect;
+  if (isGlEffect(effect))
+    return (
+      <GLBackground
+        effect={effect}
+        scope={scope}
+        enabled={animate && gl}
+        options={{ accent: ap.accentColor, bg: ap.backgroundColor, intensity: ap.fxIntensity / 100, rainbow: ap.fluidRainbow, transparent: hasMedia }}
+      />
+    );
+  if (!animate) return null;
+  return <CanvasFx effect={effect} color={ap.accentColor} />;
+}
+
+/** 2D canvas effects. Pause when hidden and respect reduced motion. */
+function CanvasFx({ effect, color }: { effect: BackgroundEffect; color: string }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -27,7 +55,7 @@ export function BackgroundFx({ effect, color }: { effect: BackgroundEffect; colo
     const ro = new ResizeObserver(resize);
     ro.observe(canvas);
 
-    const count = { particles: 70, snow: 120, rain: 160, stars: 160, nightfall: 90 }[effect] ?? 60;
+    const count = ({ particles: 70, snow: 120, rain: 160, stars: 160, nightfall: 90 } as Record<string, number>)[effect] ?? 60;
     const make = (init: boolean): P => {
       const base = { x: Math.random() * w, y: init ? Math.random() * h : -10, t: Math.random() * 6.28 };
       switch (effect) {

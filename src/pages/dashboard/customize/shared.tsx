@@ -1,3 +1,5 @@
+import { useId } from 'react';
+import { shifted } from '@/lib/color';
 import { cx } from '@/lib/util';
 
 export type TabId = 'profile' | 'style' | 'colors' | 'effects' | 'audio' | 'widgets';
@@ -64,6 +66,8 @@ export function LayoutThumb({ id, active }: { id: string; active: boolean }) {
 
 /** Small drawings of each background effect. */
 export function FxPreview({ id, color }: { id: string; color: string }) {
+  const uid = useId().replace(/:/g, '');
+  if (id === 'fluid' || id === 'aurora' || id === 'liquid' || id === 'warp') return <GlPreview id={id} color={color} uid={uid} />;
   const dots = (n: number, seed: number) =>
     Array.from({ length: n }, (_, i) => {
       const x = ((i * 37 + seed * 11) % 100) / 100;
@@ -87,6 +91,57 @@ export function FxPreview({ id, color }: { id: string; color: string }) {
           <circle cx="34" cy="30" r="14" fill={color} opacity=".55" filter="url(#fxb)" />
           <circle cx="68" cy="20" r="11" fill={color} opacity=".35" filter="url(#fxb)" />
         </>
+      )}
+    </svg>
+  );
+}
+
+/** Drawings for the WebGL effects, in the accent colour and two neighbouring hues. */
+function GlPreview({ id, color, uid }: { id: 'fluid' | 'aurora' | 'liquid' | 'warp'; color: string; uid: string }) {
+  const a = shifted(color, 0);
+  const b = shifted(color, 50);
+  const c = shifted(color, -55);
+  return (
+    <svg viewBox="0 0 100 58" className="h-full w-full" aria-hidden>
+      <defs>
+        <filter id={`b${uid}`} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="2.4" /></filter>
+        <filter id={`s${uid}`} x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="6" /></filter>
+        <linearGradient id={`g${uid}`} x1="0" x2="1"><stop offset="0" stopColor={a} /><stop offset=".55" stopColor={b} /><stop offset="1" stopColor={c} /></linearGradient>
+        <linearGradient id={`v${uid}`} x1="0" x2="0" y1="0" y2="1"><stop offset="0" stopColor={b} stopOpacity="0" /><stop offset=".55" stopColor={a} stopOpacity=".9" /><stop offset="1" stopColor={a} stopOpacity="0" /></linearGradient>
+      </defs>
+      {id === 'fluid' && (
+        <g filter={`url(#b${uid})`} fill="none" strokeLinecap="round">
+          <path d="M8 40 C 24 6, 40 54, 56 26 S 82 8, 94 30" stroke={`url(#g${uid})`} strokeWidth="7" opacity=".9" />
+          <path d="M14 18 C 30 34, 44 4, 62 22 S 84 50, 92 46" stroke={c} strokeWidth="4" opacity=".55" />
+          <circle cx="56" cy="27" r="7" fill={b} opacity=".5" />
+        </g>
+      )}
+      {id === 'aurora' && (
+        <g filter={`url(#b${uid})`}>
+          <path d="M0 30 C 20 16, 40 34, 60 20 S 90 22, 100 14 L100 4 C 80 12, 60 2, 40 12 S 12 8, 0 18 Z" fill={`url(#v${uid})`} opacity=".95" />
+          <path d="M0 38 C 24 26, 46 40, 70 28 S 92 32, 100 26 L100 18 C 78 26, 56 16, 34 26 S 10 22, 0 28 Z" fill={c} opacity=".35" />
+        </g>
+      )}
+      {id === 'liquid' && (
+        <g filter={`url(#s${uid})`}>
+          <circle cx="32" cy="24" r="17" fill={a} opacity=".85" />
+          <circle cx="66" cy="36" r="16" fill={b} opacity=".7" />
+          <circle cx="58" cy="14" r="10" fill={c} opacity=".65" />
+        </g>
+      )}
+      {id === 'warp' && (
+        <g strokeLinecap="round">
+          <circle cx="50" cy="29" r="8" fill={a} opacity=".35" filter={`url(#s${uid})`} />
+          {Array.from({ length: 18 }, (_, i) => {
+            const t = (i / 18) * Math.PI * 2 + (i % 3) * 0.13;
+            const r1 = 7 + (i % 4) * 3;
+            const r2 = r1 + 10 + (i % 5) * 5;
+            return (
+              <line key={i} x1={50 + Math.cos(t) * r1} y1={29 + Math.sin(t) * r1 * 0.62} x2={50 + Math.cos(t) * r2} y2={29 + Math.sin(t) * r2 * 0.62}
+                stroke={i % 3 ? '#fff' : b} strokeWidth={i % 2 ? 0.8 : 1.2} opacity={0.35 + (i % 4) * 0.15} />
+            );
+          })}
+        </g>
       )}
     </svg>
   );

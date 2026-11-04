@@ -44,7 +44,7 @@ export function TemplateCard({ t, profile, active, actions }: { t: Template; pro
       <div className="relative overflow-hidden border-b border-white/[.06] bg-black">
         <div className="pointer-events-none transition-transform duration-500 ease-out group-hover:scale-[1.03]">
           <ScaledFrame width={1280} height={800} fitWidth>
-            <ProfileView p={profile} preview />
+            <ProfileView p={profile} preview gl={false} />
           </ScaledFrame>
         </div>
         {active && <span className="absolute left-3 top-3 rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-white">Current</span>}

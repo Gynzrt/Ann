@@ -1,6 +1,9 @@
 export type LayoutId = 'default' | 'modern' | 'simplistic' | 'sleek' | 'portfolio';
 
-export type BackgroundEffect = 'none' | 'particles' | 'snow' | 'rain' | 'stars' | 'blur-orbs' | 'nightfall';
+export type BackgroundEffect =
+  | 'none' | 'particles' | 'snow' | 'rain' | 'stars' | 'blur-orbs' | 'nightfall'
+  // WebGL effects
+  | 'fluid' | 'aurora' | 'liquid' | 'warp';
 export type UsernameEffect = 'none' | 'glow' | 'rainbow' | 'sparkle' | 'typewriter' | 'shimmer';
 export type CursorStyle = 'default' | 'dot' | 'ring' | 'trail' | 'custom';
 export type Font = 'Inter' | 'Poppins' | 'Space Grotesk' | 'JetBrains Mono' | 'Playfair Display' | 'Press Start 2P';
@@ -39,6 +42,10 @@ export interface Appearance {
   glowBadges: boolean;
   glowStrength: number; // 0-100
   backgroundEffect: BackgroundEffect;
+  /** Brightness of WebGL effects, 0-100. */
+  fxIntensity: number;
+  /** Fluid uses colours from the whole hue wheel instead of the accent. */
+  fluidRainbow: boolean;
   usernameEffect: UsernameEffect;
   cursor: CursorStyle;
   cursorUrl: string;
@@ -103,6 +110,8 @@ export const DEFAULT_APPEARANCE: Appearance = {
   glowBadges: false,
   glowStrength: 50,
   backgroundEffect: 'particles',
+  fxIntensity: 70,
+  fluidRainbow: false,
   usernameEffect: 'none',
   cursor: 'default',
   cursorUrl: '',

@@ -1,7 +1,8 @@
 import { Circle, CircleDot, ImageIcon, MousePointer2, RotateCcw } from 'lucide-react';
 import type { BackgroundEffect, CursorStyle, UsernameEffect } from '@/lib/types';
 import { hexA } from '@/lib/util';
-import { Button, Field, Input, OptionGrid, Rows, Section, Slider, SwitchRow, Textarea } from '@/components/ui';
+import { Button, Field, FieldLabel, Input, OptionGrid, Rows, Section, Segmented, Slider, SwitchRow, Textarea } from '@/components/ui';
+import { isGlEffect } from '@/components/profile/gl/GLBackground';
 import { Upload } from '@/components/dashboard/Upload';
 import { useDraft } from '../draft';
 import { FxPreview } from './shared';
@@ -15,6 +16,13 @@ const BG: { value: BackgroundEffect; label: string }[] = [
   { value: 'stars', label: 'Stars' },
   { value: 'nightfall', label: 'Meteors' },
   { value: 'blur-orbs', label: 'Orbs' },
+];
+
+const GL: { value: BackgroundEffect; label: string; title: string }[] = [
+  { value: 'fluid', label: 'Fluid', title: 'A live fluid simulation that visitors can stir' },
+  { value: 'aurora', label: 'Aurora', title: 'Curtains of light drifting across the sky' },
+  { value: 'liquid', label: 'Liquid', title: 'Slowly flowing, warped colour' },
+  { value: 'warp', label: 'Warp', title: 'Stars streaking past at warp speed' },
 ];
 
 const NAME: { value: UsernameEffect; label: string }[] = [
@@ -63,14 +71,48 @@ export function EffectsTab({ goTo, onReplay }: TabProps) {
   return (
     <>
       <Section title="Background" description="An animated layer behind your profile.">
-        <OptionGrid
-          ariaLabel="Background effect"
-          cols={4}
-          previewClass="h-[54px]"
-          value={ap.backgroundEffect}
-          onChange={(v) => setAp({ backgroundEffect: v })}
-          options={BG.map((b) => ({ value: b.value, label: b.label, preview: <FxPreview id={b.value} color={ap.accentColor} /> }))}
-        />
+        <div>
+          <FieldLabel aside={<span className="rounded-[5px] border border-white/[.1] px-1.5 py-px text-[10px] font-semibold tracking-[0.06em] text-zinc-400">GPU</span>}>WebGL</FieldLabel>
+          <OptionGrid
+            ariaLabel="WebGL background effect"
+            cols={4}
+            previewClass="h-[58px]"
+            value={ap.backgroundEffect}
+            onChange={(v) => setAp({ backgroundEffect: v })}
+            options={GL.map((b) => ({ value: b.value, label: b.label, title: b.title, preview: <FxPreview id={b.value} color={ap.accentColor} /> }))}
+          />
+        </div>
+        {isGlEffect(ap.backgroundEffect) && (
+          <div className="space-y-4 rounded-[12px] border border-white/[.06] bg-white/[.015] p-4">
+            <Slider label="Intensity" value={ap.fxIntensity} min={10} max={100} unit="%" onChange={(v) => setAp({ fxIntensity: v })} />
+            {ap.backgroundEffect === 'fluid' && (
+              <div>
+                <FieldLabel>Colours</FieldLabel>
+                <Segmented
+                  value={ap.fluidRainbow ? 'rainbow' : 'accent'}
+                  onChange={(v) => setAp({ fluidRainbow: v === 'rainbow' })}
+                  options={[{ value: 'accent', label: 'Accent' }, { value: 'rainbow', label: 'Rainbow' }]}
+                />
+              </div>
+            )}
+            <p className="text-[12px] leading-relaxed text-zinc-500">
+              {ap.backgroundEffect === 'fluid'
+                ? 'Visitors stir it with the cursor or a finger, and it keeps flowing on its own when nobody does. Try it in the preview.'
+                : 'Rendered on the GPU and paused when the page is hidden. Visitors who prefer reduced motion see a still version.'}
+            </p>
+          </div>
+        )}
+        <div>
+          <FieldLabel>Canvas</FieldLabel>
+          <OptionGrid
+            ariaLabel="Background effect"
+            cols={4}
+            previewClass="h-[54px]"
+            value={ap.backgroundEffect}
+            onChange={(v) => setAp({ backgroundEffect: v })}
+            options={BG.map((b) => ({ value: b.value, label: b.label, preview: <FxPreview id={b.value} color={ap.accentColor} /> }))}
+          />
+        </div>
         {ap.backgroundUrl ? (
           <Slider label="Dim background media" value={ap.backgroundDim} min={0} max={90} unit="%" onChange={(v) => setAp({ backgroundDim: v })} />
         ) : (

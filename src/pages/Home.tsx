@@ -19,7 +19,7 @@ function demo(layout: LayoutId): Profile {
     location: 'Lisbon', avatarUrl: `${origin}/demo/avatar.png`, badges: ['developer', 'creator', 'og'], views: 12842, uid: 7, premium: false, createdAt: '',
     appearance: {
       ...DEFAULT_APPEARANCE, layout, enterScreen: false, tilt: false, entrance: 'fade', profileOpacity: 55, bannerUrl: `${origin}/demo/banner.jpg`,
-      backgroundEffect: 'stars',
+      backgroundEffect: 'fluid', fxIntensity: 75,
     },
     links: ['discord-user', 'x', 'github', 'spotify', 'instagram'].map((p, i) => ({ id: String(i), platform: p, url: 'https://example.com', position: i })),
   };
@@ -28,7 +28,7 @@ function demo(layout: LayoutId): Profile {
 const FEATURES = [
   { icon: Layers, title: 'Five real layouts', text: 'Default, Modern, Simplistic, Sleek and Portfolio. Each one arranges your page differently.' },
   { icon: Palette, title: 'Every colour, every font', text: 'Accent, text, icon and border colours, six typefaces, card blur, opacity and radius.' },
-  { icon: Sparkles, title: 'Effects that feel alive', text: 'Snow, rain, stars and meteors. Animated usernames, a typewriter bio and custom cursors.' },
+  { icon: Sparkles, title: 'Effects that feel alive', text: 'A live fluid simulation visitors can stir, aurora and warp-speed shaders, plus snow, rain and stars.' },
   { icon: Music2, title: 'Bring your sound', text: 'Upload a playlist with covers. It starts the moment a visitor steps in.' },
   { icon: Link2, title: 'All your links', text: 'More than thirty platforms, copy-to-clipboard handles and drag-to-reorder.' },
   { icon: BarChart3, title: 'Know who stops by', text: 'Unique daily views, a 30-day chart and a public leaderboard.' },
@@ -68,7 +68,7 @@ export function Home() {
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
               <Link to="/templates" className="inline-flex items-center gap-2 rounded-full border border-white/[.08] bg-white/[.03] py-1 pl-1.5 pr-3 text-[12.5px] text-zinc-400 transition hover:border-white/[.14] hover:text-zinc-200">
                 <span className="rounded-full bg-white/[.08] px-2 py-0.5 text-[11px] font-semibold text-zinc-200">New</span>
-                Eight one-click templates
+                New: WebGL fluid backgrounds
                 <ArrowRight size={13} />
               </Link>
             </motion.div>

@@ -22,7 +22,11 @@ Built with React, TypeScript, Tailwind CSS, Framer Motion, Lucide and Supabase.
   - Entrance animations and 3D tilt
   - Custom browser tab title
 - **Effects:**
-  - Backgrounds: particles, snow, rain, twinkling stars, shooting stars, floating orbs, or your own image or video
+  - WebGL backgrounds, rendered on the GPU:
+    - **Fluid:** a real-time fluid simulation that visitors stir with the cursor or a finger. It keeps flowing on its own, in your accent colour or the full rainbow.
+    - **Aurora**, **Liquid** and **Warp** shaders that follow your colours and drift toward the pointer.
+    - They pause when the page is hidden. Visitors who prefer reduced motion, and browsers without WebGL2, see a still version. Template thumbnails use still versions too.
+  - Canvas backgrounds: particles, snow, rain, twinkling stars, shooting stars, floating orbs, or your own image or video
   - Username effects: glow, rainbow, shimmer, sparkles, typewriter
   - A typewriter description
   - Cursors: dot, ring, trail, or your own image
@@ -78,6 +82,7 @@ This outputs `dist/`. Routes like `/username` need a fallback to `index.html`. `
 | `src/lib/types.ts` | Profile and appearance model, with defaults |
 | `src/components/ui/` | The design system: buttons, fields, switches, sliders, popovers, colour picker, toasts |
 | `src/components/profile/` | Public profile renderer, layouts, effects, player, Discord card |
+| `src/components/profile/gl/` | WebGL effects: the fluid simulation, shader backgrounds and still fallbacks |
 | `src/components/dashboard/` | Live preview with device frames, upload tiles, views chart, template cards |
 | `src/pages/` | Marketing pages, auth, public profile |
 | `src/pages/dashboard/` | Shell, shared draft, Overview, Customize (with `customize/` tabs), Links, Templates, Settings |
