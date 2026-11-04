@@ -1,36 +1,32 @@
 import { useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { AtSign, Lock, Mail } from 'lucide-react';
+import { AtSign, Check, Info, Loader2, Lock, Mail, X } from 'lucide-react';
 import { backend, validateUsername } from '@/lib/backend';
 import { useAuth } from '@/lib/auth';
-import { Button, Logo } from '@/components/ui';
+import { Button, Field, Input, Logo } from '@/components/ui';
 
-function Shell({ title, sub, children }: { title: string; sub: string; children: React.ReactNode }) {
+function Shell({ title, sub, children, footer }: { title: string; sub: string; children: ReactNode; footer?: ReactNode }) {
   return (
-    <div className="relative grid min-h-screen place-items-center overflow-hidden bg-ink-950 px-4 py-10">
-      <div className="pointer-events-none absolute left-1/2 top-0 h-[420px] w-[700px] -translate-x-1/2 rounded-full bg-brand-500/15 blur-[130px]" aria-hidden />
-      <motion.div initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45 }}
-        className="relative w-full max-w-[400px] rounded-2xl border border-white/[.07] bg-ink-900/90 p-7 backdrop-blur">
-        <Link to="/" className="mb-6 inline-block text-[18px]"><Logo /></Link>
-        <h1 className="text-[22px] font-bold">{title}</h1>
-        <p className="mt-1 text-sm text-white/50">{sub}</p>
-        {backend.mode === 'local' && (
-          <p className="mt-4 rounded-lg border border-amber-400/20 bg-amber-400/5 px-3 py-2 text-xs text-amber-200/80">
-            Local mode: accounts are stored in this browser only. Connect Supabase to share profiles publicly.
-          </p>
-        )}
-        <div className="mt-6">{children}</div>
+    <div className="relative flex min-h-[100dvh] flex-col items-center justify-center overflow-hidden bg-bg px-4 py-12">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px]" style={{ background: 'radial-gradient(50% 100% at 50% 0%, rgba(139,92,246,.10), transparent 70%)' }} aria-hidden />
+      <div className="bg-dots pointer-events-none absolute inset-0 opacity-50 [mask-image:radial-gradient(50%_50%_at_50%_40%,#000,transparent)]" aria-hidden />
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: [0.2, 0.8, 0.2, 1] }} className="relative w-full max-w-[400px]">
+        <Link to="/" className="mx-auto mb-8 flex w-fit rounded-md outline-none focus-visible:ring-2 focus-visible:ring-accent/50" aria-label="halo home"><Logo size={28} className="text-[18px]" /></Link>
+        <div className="rounded-[18px] border border-white/[.07] bg-card/90 p-7 shadow-[0_30px_80px_-30px_rgba(0,0,0,.8),inset_0_1px_0_rgba(255,255,255,.03)] backdrop-blur">
+          <h1 className="text-[20px] font-semibold tracking-[-0.02em] text-white">{title}</h1>
+          <p className="mt-1.5 text-[13.5px] text-zinc-500">{sub}</p>
+          {backend.mode === 'local' && (
+            <p className="mt-5 flex gap-2.5 rounded-[10px] border border-amber-300/15 bg-amber-300/[.04] px-3 py-2.5 text-[12px] leading-relaxed text-amber-100/75">
+              <Info size={14} className="mt-px shrink-0 text-amber-300/80" />
+              Local mode: accounts are stored in this browser only. Connect Supabase to share pages publicly.
+            </p>
+          )}
+          <div className="mt-6">{children}</div>
+        </div>
+        {footer && <p className="mt-6 text-center text-[13px] text-zinc-500">{footer}</p>}
       </motion.div>
-    </div>
-  );
-}
-
-function IconInput({ icon: I, ...rest }: React.InputHTMLAttributes<HTMLInputElement> & { icon: typeof Mail }) {
-  return (
-    <div className="relative">
-      <I size={16} className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-white/35" />
-      <input {...rest} className="h-11 w-full rounded-lg border border-white/[.08] bg-ink-850 pl-10 pr-3 text-sm outline-none transition placeholder:text-white/30 focus:border-brand-500/60 focus:ring-2 focus:ring-brand-500/20" />
     </div>
   );
 }
@@ -48,20 +44,20 @@ export function Login() {
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setErr(''); setBusy(true);
+    setErr('');
+    setBusy(true);
     try { await backend.signIn(email, pw); await refresh(); }
     catch (x) { setErr((x as Error).message); }
     finally { setBusy(false); }
   };
   return (
-    <Shell title="Welcome back" sub="Log in to edit your page.">
-      <form onSubmit={submit} className="space-y-3">
-        <IconInput icon={Mail} type="email" required placeholder="Email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <IconInput icon={Lock} type="password" required placeholder="Password" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {err && <p className="text-sm text-red-400" role="alert">{err}</p>}
-        <Button className="h-11 w-full" loading={busy}>Log in</Button>
+    <Shell title="Welcome back" sub="Log in to edit your page." footer={<>No account yet? <Link to="/register" className="font-medium text-zinc-200 hover:text-white hover:underline">Sign up free</Link></>}>
+      <form onSubmit={submit} className="space-y-4">
+        <Field label="Email"><Input icon={Mail} inputSize="lg" type="email" required placeholder="you@example.com" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
+        <Field label="Password"><Input icon={Lock} inputSize="lg" type="password" required placeholder="••••••••" autoComplete="current-password" value={pw} onChange={(e) => setPw(e.target.value)} invalid={!!err} /></Field>
+        {err && <p className="text-[13px] text-red-400" role="alert">{err}</p>}
+        <Button type="submit" size="lg" className="w-full" loading={busy}>Log in</Button>
       </form>
-      <p className="mt-5 text-center text-sm text-white/50">No account? <Link to="/register" className="font-medium text-brand-400 hover:underline">Sign up</Link></p>
     </Shell>
   );
 }
@@ -79,20 +75,22 @@ export function Register() {
   const { account, refresh } = useAuth();
   useEffect(() => { if (account) nav('/dashboard', { replace: true }); }, [account, nav]);
 
+  const u = username.trim().toLowerCase();
+  const uErr = u ? validateUsername(u) : null;
   useEffect(() => {
-    const u = username.trim().toLowerCase();
-    if (validateUsername(u)) { setAvail(null); return; }
+    setAvail(null);
+    if (!u || validateUsername(u)) return;
     const t = setTimeout(() => backend.isUsernameAvailable(u).then(setAvail).catch(() => setAvail(null)), 300);
     return () => clearTimeout(t);
-  }, [username]);
+  }, [u]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const u = username.trim().toLowerCase();
     const v = validateUsername(u);
     if (v) return setErr(v);
-    if (pw.length < 8) return setErr('Password must be at least 8 characters.');
-    setErr(''); setBusy(true);
+    if (pw.length < 8) return setErr('Your password needs at least 8 characters.');
+    setErr('');
+    setBusy(true);
     try {
       await backend.signUp(email, pw, u);
       if (backend.mode === 'supabase' && !(await backend.getAccount())) setSent(true);
@@ -102,26 +100,46 @@ export function Register() {
   };
 
   if (sent)
-    return <Shell title="Check your inbox" sub={`We sent a confirmation link to ${email}. Open it to finish creating your account.`}><Link to="/login" className="text-sm text-brand-400">Back to login</Link></Shell>;
+    return (
+      <Shell title="Check your inbox" sub={`We sent a confirmation link to ${email}. Open it to finish creating your account.`}>
+        <Link to="/login" className="text-[13.5px] font-medium text-zinc-200 hover:underline">Back to log in</Link>
+      </Shell>
+    );
 
-  const u = username.trim().toLowerCase();
+  const status = !u ? null : uErr ? 'bad' : avail === null ? 'checking' : avail ? 'ok' : 'taken';
   return (
-    <Shell title="Create your page" sub="Pick a username. You can change it later.">
-      <form onSubmit={submit} className="space-y-3">
-        <div>
-          <IconInput icon={AtSign} required placeholder="username" autoComplete="username" value={username} onChange={(e) => setUsername(e.target.value.toLowerCase())} maxLength={20} />
-          {u && (
-            <p className={`mt-1.5 text-xs ${validateUsername(u) || avail === false ? 'text-red-400' : avail ? 'text-emerald-400' : 'text-white/40'}`}>
-              {validateUsername(u) ?? (avail === false ? 'That username is taken.' : avail ? `${location.host}/${u} is available` : 'Checking…')}
-            </p>
-          )}
-        </div>
-        <IconInput icon={Mail} type="email" required placeholder="Email" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} />
-        <IconInput icon={Lock} type="password" required placeholder="Password (8+ characters)" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} />
-        {err && <p className="text-sm text-red-400" role="alert">{err}</p>}
-        <Button className="h-11 w-full" loading={busy} disabled={avail === false}>Create account</Button>
+    <Shell title="Create your page" sub="Pick a username. You can change it later." footer={<>Already have an account? <Link to="/login" className="font-medium text-zinc-200 hover:text-white hover:underline">Log in</Link></>}>
+      <form onSubmit={submit} className="space-y-4">
+        <Field
+          label="Username"
+          error={uErr ?? (status === 'taken' ? 'That username is taken.' : undefined)}
+          hint={status === 'ok' ? <span className="text-emerald-400">{location.host}/{u} is yours to claim</span> : undefined}
+        >
+          <Input
+            icon={AtSign}
+            inputSize="lg"
+            required
+            placeholder="yourname"
+            autoComplete="username"
+            spellCheck={false}
+            value={username}
+            maxLength={20}
+            invalid={status === 'bad' || status === 'taken'}
+            onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_.]/g, ''))}
+            suffix={
+              status === 'checking' ? <Loader2 size={15} className="animate-spin text-zinc-500" />
+                : status === 'ok' ? <Check size={15} className="text-emerald-400" />
+                : status ? <X size={15} className="text-red-400" /> : null
+            }
+          />
+        </Field>
+        <Field label="Email"><Input icon={Mail} inputSize="lg" type="email" required placeholder="you@example.com" autoComplete="email" value={email} onChange={(e) => setEmail(e.target.value)} /></Field>
+        <Field label="Password" hint="At least 8 characters.">
+          <Input icon={Lock} inputSize="lg" type="password" required placeholder="••••••••" autoComplete="new-password" value={pw} onChange={(e) => setPw(e.target.value)} />
+        </Field>
+        {err && <p className="text-[13px] text-red-400" role="alert">{err}</p>}
+        <Button type="submit" size="lg" className="w-full" loading={busy} disabled={status === 'taken'}>Create account</Button>
       </form>
-      <p className="mt-5 text-center text-sm text-white/50">Already have one? <Link to="/login" className="font-medium text-brand-400 hover:underline">Log in</Link></p>
     </Shell>
   );
 }

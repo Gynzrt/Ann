@@ -16,6 +16,7 @@ const Overview = lazy(() => import('./pages/dashboard/Overview'));
 const Customize = lazy(() => import('./pages/dashboard/Customize'));
 const Links = lazy(() => import('./pages/dashboard/Links'));
 const Settings = lazy(() => import('./pages/dashboard/Settings'));
+const DashTemplates = lazy(() => import('./pages/dashboard/Templates'));
 
 function RequireAuth({ children }: { children: JSX.Element }) {
   const { account, loading } = useAuth();
@@ -46,6 +47,7 @@ export function App() {
             <Route index element={<Overview />} />
             <Route path="customize" element={<Customize />} />
             <Route path="links" element={<Links />} />
+            <Route path="templates" element={<DashTemplates />} />
             <Route path="settings" element={<Settings />} />
           </Route>
           <Route path="/:username" element={<PublicProfile />} />

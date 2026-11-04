@@ -17,9 +17,9 @@ export function BackgroundFx({ effect, color }: { effect: BackgroundEffect; colo
     const ctx = canvas.getContext('2d')!;
     let w = 0, h = 0, raf = 0;
     const dpr = Math.min(devicePixelRatio || 1, 2);
+    // Layout size, not on-screen size: the editor preview scales its frame with a transform.
     const resize = () => {
-      const r = canvas.getBoundingClientRect();
-      w = r.width; h = r.height;
+      w = canvas.clientWidth; h = canvas.clientHeight;
       canvas.width = w * dpr; canvas.height = h * dpr;
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     };
@@ -67,16 +67,21 @@ export function BackgroundFx({ effect, color }: { effect: BackgroundEffect; colo
       }
       raf = requestAnimationFrame(draw);
     };
-    const onVis = () => {
+    // Only animate while the canvas is on screen and the tab is visible.
+    let inView = true;
+    const sync = () => {
       cancelAnimationFrame(raf);
-      if (!document.hidden) raf = requestAnimationFrame(draw);
+      if (!document.hidden && inView) raf = requestAnimationFrame(draw);
     };
-    document.addEventListener('visibilitychange', onVis);
-    raf = requestAnimationFrame(draw);
+    const io = new IntersectionObserver(([e]) => { inView = e.isIntersecting; sync(); });
+    io.observe(canvas);
+    document.addEventListener('visibilitychange', sync);
+    sync();
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      document.removeEventListener('visibilitychange', onVis);
+      io.disconnect();
+      document.removeEventListener('visibilitychange', sync);
     };
   }, [effect, color]);
 

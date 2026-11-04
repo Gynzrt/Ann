@@ -30,9 +30,12 @@ Built with React, TypeScript, Tailwind CSS, Framer Motion, Lucide and Supabase.
 - **Discord presence:** live status, game or Spotify track through the public [Lanyard](https://github.com/Phineas/lanyard) API. You need to join Lanyard's Discord server.
 - **Links:** over 35 platforms. Handles become full URLs, and wallet addresses and Discord usernames copy to the clipboard. Drag to reorder.
 - **Dashboard:**
-  - Overview: total views, a 14-day views chart and a setup checklist
-  - A customizer with a live desktop or phone preview
-  - Links and account settings
+  - A two-pane workspace: the editor scrolls on its own, and the live preview shows your real page at desktop, tablet or phone size.
+  - Customize has six tabs (Profile, Style, Colors, Effects, Audio, Widgets), built from one set of controls: inputs, upload tiles, a colour picker, switches, sliders and option tiles.
+  - Customize and Links edit one shared draft, so switching pages never loses work. Unsaved pages show a dot in the sidebar. Save with the button or ⌘/Ctrl+S.
+  - Overview: stat cards, a 7, 14 or 30-day views chart and a thumbnail of your page.
+  - Templates inside the dashboard, previewed with your own content, with undo.
+  - A collapsible sidebar, an account menu and a mobile drawer.
 - **Templates** you can apply in one click. They change the style and keep your content.
 - **Leaderboard** of the most viewed profiles
 - **View tracking:** one view per visitor per day
@@ -73,7 +76,9 @@ This outputs `dist/`. Routes like `/username` need a fallback to `index.html`. `
 | --- | --- |
 | `src/lib/backend/` | The `Backend` interface, with Supabase and local implementations |
 | `src/lib/types.ts` | Profile and appearance model, with defaults |
+| `src/components/ui/` | The design system: buttons, fields, switches, sliders, popovers, colour picker, toasts |
 | `src/components/profile/` | Public profile renderer, layouts, effects, player, Discord card |
+| `src/components/dashboard/` | Live preview with device frames, upload tiles, views chart, template cards |
 | `src/pages/` | Marketing pages, auth, public profile |
-| `src/pages/dashboard/` | Overview, Customize, Links, Settings |
+| `src/pages/dashboard/` | Shell, shared draft, Overview, Customize (with `customize/` tabs), Links, Templates, Settings |
 | `supabase/migrations/` | Database schema |

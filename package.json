@@ -16,6 +16,7 @@
   },
   "homepage": "https://github.com/Gynzrt/Ann#readme",
   "dependencies": {
+    "@fontsource-variable/inter": "^5.1.0",
     "@supabase/supabase-js": "^2.46.1",
     "framer-motion": "^11.11.17",
     "lucide-react": "^0.460.0",
@@ -25,6 +26,7 @@
     "simple-icons": "^13.17.0"
   },
   "devDependencies": {
+    "@tailwindcss/container-queries": "^0.1.1",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.4",

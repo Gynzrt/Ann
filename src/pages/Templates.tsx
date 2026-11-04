@@ -1,29 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Check } from 'lucide-react';
-import { MarketingPage } from '@/components/layout/SiteNav';
+import { ArrowRight, Check } from 'lucide-react';
+import { MarketingPage, PageIntro } from '@/components/layout/SiteNav';
 import { TEMPLATES } from '@/lib/templates';
 import type { Template } from '@/lib/templates';
-import { DEFAULT_APPEARANCE } from '@/lib/types';
-import type { Profile } from '@/lib/types';
-import { ProfileView } from '@/components/profile/ProfileView';
 import { useAuth } from '@/lib/auth';
 import { backend } from '@/lib/backend';
-import { cx } from '@/lib/util';
-
-function sample(t: Template): Profile {
-  return {
-    id: t.id, username: t.id, displayName: t.name.toLowerCase(), bio: 'a short line about me', location: '', avatarUrl: '',
-    badges: ['creator', 'og'], views: 1337, uid: 1, premium: false, createdAt: '',
-    appearance: { ...DEFAULT_APPEARANCE, ...t.appearance, enterScreen: false, tilt: false, entrance: 'none', cursor: 'default' },
-    links: ['discord-user', 'x', 'github', 'spotify'].map((p, i) => ({ id: String(i), platform: p, url: 'https://example.com', position: i })),
-  };
-}
+import { Button, Segmented, useToast } from '@/components/ui';
+import { TemplateCard, sampleWithBanner } from '@/components/dashboard/TemplateCard';
 
 export function Templates() {
   const { account, profile, setProfile } = useAuth();
-  const [filter, setFilter] = useState('All');
+  const toast = useToast();
+  const [tag, setTag] = useState('All');
   const [applied, setApplied] = useState('');
   const [busy, setBusy] = useState('');
   const nav = useNavigate();
@@ -33,9 +22,17 @@ export function Templates() {
     if (!account || !profile) return nav('/register');
     setBusy(t.id);
     try {
-      const p = await backend.updateProfile({ appearance: { ...profile.appearance, ...t.appearance } });
+      const prev = profile.appearance;
+      const p = await backend.updateProfile({ appearance: { ...prev, ...t.appearance } });
       setProfile(p);
       setApplied(t.id);
+      toast({
+        title: `${t.name} applied to your page`,
+        duration: 6000,
+        action: { label: 'Undo', run: () => { backend.updateProfile({ appearance: prev }).then((x) => { setProfile(x); setApplied(''); }); } },
+      });
+    } catch (x) {
+      toast({ tone: 'error', title: 'Couldn’t apply that', description: (x as Error).message });
     } finally {
       setBusy('');
     }
@@ -43,37 +40,24 @@ export function Templates() {
 
   return (
     <MarketingPage>
-      <section className="px-4 pb-24 pt-10">
-        <div className="mx-auto max-w-5xl">
-          <h1 className="text-center text-[36px] font-extrabold tracking-tight sm:text-[46px]">Templates</h1>
-          <p className="mx-auto mt-3 max-w-md text-center text-white/50">Start from a look you like. Applying one keeps your content and changes only the style.</p>
-          <div className="mt-8 flex flex-wrap justify-center gap-2">
-            {tags.map((t) => (
-              <button key={t} onClick={() => setFilter(t)}
-                className={cx('rounded-full border px-3.5 py-1.5 text-sm font-medium transition', filter === t ? 'border-brand-500/50 bg-brand-500/15 text-white' : 'border-white/[.08] text-white/55 hover:text-white')}>
-                {t}
-              </button>
-            ))}
+      <PageIntro eyebrow="Templates" title="Start from a look you love">Applying a template changes only the style. Your name, links and media stay as they are.</PageIntro>
+      <section className="px-4 pb-28 pt-12 sm:px-6">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="no-scrollbar flex justify-center overflow-x-auto">
+            <Segmented size="sm" full={false} value={tag} onChange={setTag} options={tags.map((x) => ({ value: x, label: x }))} />
           </div>
-          <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {TEMPLATES.filter((t) => filter === 'All' || t.tag === filter).map((t) => (
-              <motion.div layout key={t.id} className="group overflow-hidden rounded-2xl border border-white/[.06] bg-ink-900">
-                <div className="relative h-[300px] overflow-hidden">
-                  <div className="pointer-events-none absolute left-1/2 top-1/2 h-[600px] w-[200%] -translate-x-1/2 -translate-y-1/2 scale-50">
-                    <ProfileView p={sample(t)} preview />
-                  </div>
-                </div>
-                <div className="flex items-center justify-between border-t border-white/[.06] p-4">
-                  <div>
-                    <div className="font-semibold">{t.name}</div>
-                    <div className="text-xs text-white/45">{t.tag} · {t.appearance.layout} layout</div>
-                  </div>
-                  <button onClick={() => apply(t)} disabled={busy === t.id}
-                    className="flex items-center gap-1.5 rounded-lg bg-white/[.07] px-3 py-1.5 text-[13px] font-medium transition hover:bg-brand-500">
-                    {applied === t.id ? <><Check size={14} /> Applied</> : account ? 'Use template' : 'Sign up to use'}
-                  </button>
-                </div>
-              </motion.div>
+          <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {TEMPLATES.filter((t) => tag === 'All' || t.tag === tag).map((t) => (
+              <TemplateCard
+                key={t.id}
+                t={t}
+                profile={sampleWithBanner(t)}
+                actions={
+                  <Button size="sm" variant="secondary" loading={busy === t.id} onClick={() => apply(t)}>
+                    {applied === t.id ? <><Check size={14} />Applied</> : account ? 'Use template' : <>Sign up to use <ArrowRight size={13} /></>}
+                  </Button>
+                }
+              />
             ))}
           </div>
         </div>

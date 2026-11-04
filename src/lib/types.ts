@@ -50,6 +50,7 @@ export interface Appearance {
   enterText: string;
   showViews: boolean;
   showBadges: boolean;
+  showUsername: boolean;
   backgroundUrl: string;
   backgroundKind: 'image' | 'video';
   backgroundDim: number; // 0-100
@@ -92,12 +93,12 @@ export const DEFAULT_APPEARANCE: Appearance = {
   iconColor: '#ffffff',
   monochromeIcons: true,
   font: 'Inter',
-  profileOpacity: 40,
-  profileBlur: 12,
-  borderRadius: 18,
+  profileOpacity: 45,
+  profileBlur: 14,
+  borderRadius: 20,
   borderWidth: 1,
-  borderColor: '#ffffff1a',
-  glowUsername: true,
+  borderColor: '#ffffff14',
+  glowUsername: false,
   glowSocials: false,
   glowBadges: false,
   glowStrength: 50,
@@ -113,6 +114,7 @@ export const DEFAULT_APPEARANCE: Appearance = {
   enterText: 'click to enter...',
   showViews: true,
   showBadges: true,
+  showUsername: true,
   backgroundUrl: '',
   backgroundKind: 'image',
   backgroundDim: 40,

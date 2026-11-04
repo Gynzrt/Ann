@@ -1,51 +1,81 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Crown, Eye } from 'lucide-react';
-import { MarketingPage } from '@/components/layout/SiteNav';
+import { motion } from 'framer-motion';
+import { Eye, Search, Trophy } from 'lucide-react';
+import { MarketingPage, PageIntro } from '@/components/layout/SiteNav';
 import { backend } from '@/lib/backend';
 import type { LeaderboardEntry } from '@/lib/backend';
 import { Avatar } from '@/components/profile/Bits';
 import { DEFAULT_APPEARANCE } from '@/lib/types';
-import { Spinner } from '@/components/layout/Spinner';
+import { EmptyState, Input } from '@/components/ui';
 import { cx, fmt } from '@/lib/util';
 
-const MEDAL = ['text-yellow-300', 'text-zinc-300', 'text-amber-600'];
+const AP = { ...DEFAULT_APPEARANCE, borderWidth: 0 };
+const MEDAL = ['#facc15', '#d4d4d8', '#d97706'];
 
 export function Leaderboard() {
   const [rows, setRows] = useState<LeaderboardEntry[] | null>(null);
   const [q, setQ] = useState('');
   useEffect(() => { backend.leaderboard(100).then(setRows).catch(() => setRows([])); }, []);
-  const list = (rows ?? []).map((r, i) => ({ ...r, rank: i + 1 })).filter((r) => r.username.includes(q.toLowerCase()));
+  const ranked = (rows ?? []).map((r, i) => ({ ...r, rank: i + 1 }));
+  const term = q.trim().toLowerCase();
+  const list = term ? ranked.filter((r) => r.username.includes(term) || r.displayName.toLowerCase().includes(term)) : ranked;
+  const podium = term ? [] : list.slice(0, 3);
+  const rest = term ? list : list.slice(3);
 
   return (
     <MarketingPage>
-      <section className="px-4 pb-24 pt-10">
-        <div className="mx-auto max-w-3xl">
-          <h1 className="text-center text-[36px] font-extrabold tracking-tight sm:text-[46px]">Leaderboard</h1>
-          <p className="mx-auto mt-3 max-w-md text-center text-white/50">The most viewed profiles{backend.mode === 'local' ? ' on this device' : ''}.</p>
-          <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search usernames"
-            className="mx-auto mt-8 block h-10 w-full max-w-sm rounded-lg border border-white/[.08] bg-ink-900 px-3 text-sm outline-none focus:border-brand-500/50" />
-          <div className="mt-6 overflow-hidden rounded-2xl border border-white/[.06] bg-ink-900">
-            {!rows ? (
-              <div className="grid place-items-center p-12"><Spinner /></div>
-            ) : list.length === 0 ? (
-              <p className="p-12 text-center text-sm text-white/45">{rows.length ? 'No one matches that search.' : 'No profiles yet. Be the first.'}</p>
-            ) : (
-              list.map((r) => (
-                <Link key={r.username} to={`/${r.username}`} className="flex items-center gap-4 border-b border-white/[.04] px-4 py-3 transition last:border-0 hover:bg-white/[.03]">
-                  <span className={cx('w-7 text-center text-sm font-bold tabular-nums', MEDAL[r.rank - 1] ?? 'text-white/40')}>
-                    {r.rank <= 3 ? <Crown size={16} className="mx-auto" /> : r.rank}
-                  </span>
-                  <Avatar src={r.avatarUrl} size={38} ap={{ ...DEFAULT_APPEARANCE, borderWidth: 0 }} />
-                  <div className="min-w-0 flex-1">
-                    <div className="truncate font-medium">{r.displayName || r.username}</div>
-                    <div className="truncate text-xs text-white/40">@{r.username} · UID {r.uid}</div>
-                  </div>
-                  <span className="flex items-center gap-1.5 text-sm tabular-nums text-white/70"><Eye size={14} className="text-white/40" />{fmt(r.views)}</span>
-                </Link>
-              ))
-            )}
-          </div>
+      <PageIntro eyebrow="Leaderboard" title="Most viewed pages">
+        Ranked by unique daily views{backend.mode === 'local' ? ' on this device' : ''}.
+      </PageIntro>
+      <section className="px-4 pb-28 pt-12 sm:px-6">
+        <div className="mx-auto max-w-[880px]">
+          <Input icon={Search} value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name" aria-label="Search the leaderboard" wrapperClassName="mx-auto max-w-sm" />
+
+          {!rows ? (
+            <div className="mt-8 space-y-2">{[0, 1, 2, 3].map((i) => <div key={i} className="skeleton h-16 rounded-[14px]" />)}</div>
+          ) : list.length === 0 ? (
+            <div className="mt-8 rounded-[16px] border border-white/[.06] bg-card">
+              <EmptyState icon={Trophy} title={rows.length ? 'No one matches that search' : 'No pages yet'} description={rows.length ? 'Try a different name.' : 'Create a page and be the first on the board.'} />
+            </div>
+          ) : (
+            <>
+              {podium.length > 0 && (
+                <div className="mt-8 flex flex-wrap justify-center gap-3">
+                  {podium.map((r, i) => (
+                    <motion.div key={r.username} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.06 }} className="w-full sm:w-[calc((100%-24px)/3)]">
+                      <Link to={`/${r.username}`} className="group relative flex flex-col items-center rounded-[16px] border border-white/[.06] bg-card px-4 pb-5 pt-6 text-center transition-colors hover:border-white/[.12]">
+                        <span className="absolute left-3 top-3 flex items-center gap-1 text-[12px] font-semibold tabular-nums" style={{ color: MEDAL[i] }}>
+                          <Trophy size={13} />#{r.rank}
+                        </span>
+                        <Avatar src={r.avatarUrl} name={r.displayName || r.username} size={64} ap={AP} />
+                        <div className="mt-3 max-w-full truncate text-[14px] font-semibold text-zinc-100">{r.displayName || r.username}</div>
+                        <div className="max-w-full truncate text-[12.5px] text-zinc-500">@{r.username}</div>
+                        <div className="mt-3 flex items-center gap-1.5 rounded-full border border-white/[.07] bg-white/[.03] px-2.5 py-1 text-[12.5px] font-medium tabular-nums text-zinc-200">
+                          <Eye size={13} className="text-zinc-500" />{fmt(r.views)}
+                        </div>
+                      </Link>
+                    </motion.div>
+                  ))}
+                </div>
+              )}
+              {rest.length > 0 && (
+                <div className="mt-3 overflow-hidden rounded-[16px] border border-white/[.06] bg-card">
+                  {rest.map((r) => (
+                    <Link key={r.username} to={`/${r.username}`} className="flex items-center gap-4 border-b border-white/[.04] px-4 py-3 transition-colors last:border-0 hover:bg-white/[.02]">
+                      <span className={cx('w-8 text-center text-[13px] font-semibold tabular-nums', r.rank <= 3 ? '' : 'text-zinc-500')} style={r.rank <= 3 ? { color: MEDAL[r.rank - 1] } : undefined}>{r.rank}</span>
+                      <Avatar src={r.avatarUrl} name={r.displayName || r.username} size={36} ap={AP} />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-[13.5px] font-medium text-zinc-100">{r.displayName || r.username}</div>
+                        <div className="truncate text-[12px] text-zinc-500">@{r.username}</div>
+                      </div>
+                      <span className="flex items-center gap-1.5 text-[13px] font-medium tabular-nums text-zinc-300"><Eye size={14} className="text-zinc-500" />{fmt(r.views)}</span>
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </section>
     </MarketingPage>
